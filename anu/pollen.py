@@ -12,9 +12,9 @@ from tensorflow.keras.preprocessing import image
 print("tensorflow version is:", tf.__version__)
 
 # reading data from csv which has filename, label stored as strings
-traindf = pd.read_csv('/home/agtrivedi/segm_ims.csv', dtype = str)
-#traindf = pd.read_csv('/home/agtrivedi/obj_ims.csv', dtype = str)
-#traindf = pd.read_csv('/home/agtrivedi/mask_ims.csv', dtype = str)
+traindf = pd.read_csv('/home/agtrivedi/repos/pollen_project/anu/segm_ims.csv', dtype = str)
+#traindf = pd.read_csv('/home/agtrivedi/repos/pollen_project/anu/obj_ims.csv', dtype = str)
+#traindf = pd.read_csv('/home/agtrivedi/repos/pollen_project/anu/mask_ims.csv', dtype = str)
 
 datagen = ImageDataGenerator(rescale=1./255.)
 train_generator = datagen.flow_from_dataframe(
@@ -61,4 +61,3 @@ print(np.shape(label_array))
 model.fit(img_array, label_array, epochs = 5)
 
 test_loss, test_acc = model.evaluate(img_array, label_array, verbose=1)
-print(test_acc)
