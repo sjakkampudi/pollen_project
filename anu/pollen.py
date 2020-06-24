@@ -12,8 +12,8 @@ from numpy.random import seed, randint
 print("tensorflow version is:", tf.__version__)
 
 # reading data from csv which has filename, label stored as strings
-traindf = pd.read_csv('/home/agtrivedi/repos/pollen_project/anu/segm_ims.csv', dtype = str)
-#traindf = pd.read_csv('/home/agtrivedi/repos/pollen_project/anu/obj_ims.csv', dtype = str)
+#traindf = pd.read_csv('/home/agtrivedi/repos/pollen_project/anu/segm_ims.csv', dtype = str)
+traindf = pd.read_csv('/home/agtrivedi/repos/pollen_project/anu/obj_ims.csv', dtype = str)
 #traindf = pd.read_csv('/home/agtrivedi/repos/pollen_project/anu/mask_ims.csv', dtype = str)
 
 datagen = ImageDataGenerator(rescale=1./255.)
@@ -26,6 +26,7 @@ train_generator = datagen.flow_from_dataframe(
 
 images = train_generator.filepaths
 labels = train_generator.labels
+#labels = [x + 1 for x in labels]
 
 label_array = np.array(labels)
 label_array = np.reshape(label_array, (np.size(label_array), 1))
@@ -36,14 +37,13 @@ img_array = np.empty((11279, 84, 84, 3))
 for index in range(len(images)):
     img = image.load_img(images[index])
     img_array[index] = image.img_to_array(img, data_format = 'channels_last')
-    #label_array[index] = train_labels[index]
 
 # select 2000 images to train, 2000 images to validate
 seed(1)
-train_vals = randint(0, len(labels), 2000)
+train_vals = randint(0, len(labels), 1000)
 train_vals = np.reshape(train_vals, (len(train_vals), 1))   
 
-validate_vals = randint(0, len(labels), 2000)
+validate_vals = randint(0, len(labels), 1000)
 validate_vals = np.reshape(validate_vals, (len(validate_vals), 1))
 
 train_labels = np.empty((np.shape(train_vals)))
@@ -76,11 +76,16 @@ model.add(layers.Dense(4))
 
 model.summary()
 
+model.compile(optimizer = 'adam', loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics = ['accuracy'])
 
-model.compile(optimizer = 'adam', loss = 'mse', metrics = ['accuracy'])
-
-#print(np.shape(img_array))
-#print(np.shape(label_array))
-model.fit(train_images, train_labels, epochs = 2, validation_data = (validate_images, validate_labels))
+model.fit(train_images, train_labels, epochs = 5, validation_data = (validate_images, validate_labels))
 
 test_loss, test_acc = model.evaluate(validate_images, validate_labels, verbose=1)
+
+#image_pred = img_array[3333]
+#print(np.shape(image_pred))
+
+#label_pred = label_array[3333]
+#print(label_pred)
+
+#prediction = model.predict(image_pred, batch_size=1, verbose=1)
