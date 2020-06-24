@@ -40,52 +40,61 @@ for index in range(len(images)):
 
 # select 2000 images to train, 2000 images to validate
 seed(1)
-train_vals = randint(0, len(labels), 1000)
+train_vals = randint(0, len(labels), 2000)
 train_vals = np.reshape(train_vals, (len(train_vals), 1))   
 
-validate_vals = randint(0, len(labels), 1000)
+validate_vals = randint(0, len(labels), 2000)
 validate_vals = np.reshape(validate_vals, (len(validate_vals), 1))
 
+test_vals = randint(0, len(labels), 2000)
+test_vals = np.reshape(test_vals, (len(test_vals), 1))
+
 train_labels = np.empty((np.shape(train_vals)))
-validate_labels = np.empty((np.shape(train_vals)))
+validate_labels = np.empty((np.shape(validate_vals)))
+test_labels = np.empty((np.shape(test_vals)))
 
 train_images = np.empty((np.shape(train_labels)[0], 84, 84, 3))
 validate_images = np.empty((np.shape(validate_labels)[0], 84, 84, 3))
+test_images = np.empty((np.shape(test_labels)[0], 84, 84, 3))
 
 for i in range(np.shape(train_labels)[0]):
     train_labels[i] = labels[train_vals[i,0]]
     validate_labels[i] = labels[validate_vals[i,0]]
-    
+    test_labels[i] = labels[test_vals[i,0]]
+
     train_images[i] = img_array[train_vals[i,0]]
     validate_images[i] = img_array[validate_vals[i,0]]
+    test_images[i] = img_array[test_vals[i,0]]
 
 print("CHECK SIZES\n-------------------------------------- \nThe size of training dataset is:", np.shape(train_images), "\nThe size of the validate dataset is:", np.shape(validate_images))    
 
 model = models.Sequential()
 model.add(layers.Conv2D(84, (3,3), activation = 'relu', input_shape = (84, 84, 3)))
 model.add(layers.MaxPooling2D((2,2)))
-model.add(layers.Conv2D(168, (3, 3), activation='relu'))
+model.add(layers.Conv2D(84, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(168, (3, 3), activation='relu'))
+model.add(layers.Conv2D(84, (3, 3), activation='relu'))
 
 model.summary()
 
 model.add(layers.Flatten())
-model.add(layers.Dense(168, activation='relu'))
+model.add(layers.Dense(84, activation='relu'))
 model.add(layers.Dense(4))
 
 model.summary()
 
 model.compile(optimizer = 'adam', loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics = ['accuracy'])
 
-model.fit(train_images, train_labels, epochs = 5, validation_data = (validate_images, validate_labels))
+model.fit(train_images, train_labels, epochs = 3, validation_data = (validate_images, validate_labels))
 
 test_loss, test_acc = model.evaluate(validate_images, validate_labels, verbose=1)
 
-#image_pred = img_array[3333]
-#print(np.shape(image_pred))
+image_pred = np.array([img_array[9744]])
+print(np.shape(image_pred))
 
-#label_pred = label_array[3333]
+label_pred = label_array[9744, 0]
 #print(label_pred)
 
-#prediction = model.predict(image_pred, batch_size=1, verbose=1)
+prediction = model.predict(image_pred, batch_size=1, verbose=1)
+print("predicted label:", np.argmax(prediction))
+print("true label:", label_pred)
