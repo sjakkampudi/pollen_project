@@ -56,7 +56,7 @@ with open('obj_ims.csv', 'w') as csvfile:
             writer.writerow([os.path.join(root,filename), '4'])
 
 path1_mask = '/home/agtrivedi/.keras/datasets/train/images/1/train_MASK'
-path2_maks = '/home/agtrivedi/.keras/datasets/train/images/2/train_MASK'
+path2_mask = '/home/agtrivedi/.keras/datasets/train/images/2/train_MASK'
 path3_mask = '/home/agtrivedi/.keras/datasets/train/images/3/train_MASK'
 path4_mask = '/home/agtrivedi/.keras/datasets/train/images/4/train_MASK'
 
