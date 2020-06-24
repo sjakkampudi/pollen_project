@@ -29,13 +29,14 @@ train_generator = datagen.flow_from_dataframe(
 #    ])
 
 model = models.Sequential()
-model.add(layers.Conv2D(84, (3,3), activation = 'relu'))
+#model.add(layers.Conv2D(84, (3,3), activation = 'relu'))
 
 train_images = train_generator.filepaths
 train_labels = train_generator.labels
 
-#label_array = np.empty((11279, 1, 1))
+#label_array = np.empty((11279, 1))
 label_array = np.array(train_labels)
+label_array = np.reshape(label_array, (np.size(label_array), 1))
 img_array = np.empty((11279, 84, 84, 3))
 #img_array = []
 
@@ -45,8 +46,8 @@ for index in range(len(train_images)):
     #label_array[index] = train_labels[index]
 
 print(np.shape(label_array))
-model.compile(optimizer = 'adam', loss = tf.keras.losses.SparseCategoricalCrossentropy(), metrics = ['accuracy'])
+model.compile(optimizer = 'adam', loss = 'mse', metrics = ['accuracy'])
 
 print(np.shape(img_array))
 print(np.shape(label_array))
-model.fit(img_array, label_array, epochs=5)
+model.fit(img_array, label_array, epochs = 2)
