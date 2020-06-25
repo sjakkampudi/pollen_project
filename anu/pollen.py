@@ -40,7 +40,7 @@ for index in range(len(images)):
 
 # select 2000 images to train, 2000 images to validate
 seed(1)
-train_vals = randint(0, len(labels), 8000)
+train_vals = randint(0, len(labels), 10000)
 train_vals = np.reshape(train_vals, (len(train_vals), 1))   
 
 validate_vals = randint(0, len(labels), 2000)
@@ -72,11 +72,11 @@ for k in range(np.shape(test_labels)[0]):
 print("CHECK SIZES\n-------------------------------------- \nThe size of training dataset is:", np.shape(train_images), "\nThe size of the validate dataset is:", np.shape(validate_images))    
 
 model = models.Sequential()
-model.add(layers.Conv2D(84, (3,3), activation = 'relu', input_shape = (84, 84, 3)))
+model.add(layers.Conv2D(168, (3,3), activation = 'relu', input_shape = (84, 84, 3)))
 model.add(layers.MaxPooling2D((2,2)))
-model.add(layers.Conv2D(84, (3, 3), activation='relu'))
+model.add(layers.Conv2D(168, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(84, (3, 3), activation='relu'))
+model.add(layers.Conv2D(168, (3, 3), activation='relu'))
 
 model.summary()
 
