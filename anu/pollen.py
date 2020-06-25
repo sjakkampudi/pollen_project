@@ -40,7 +40,7 @@ for index in range(len(images)):
 
 # select 2000 images to train, 2000 images to validate
 seed(1)
-train_vals = randint(0, len(labels), 2000)
+train_vals = randint(0, len(labels), 8000)
 train_vals = np.reshape(train_vals, (len(train_vals), 1))   
 
 validate_vals = randint(0, len(labels), 2000)
@@ -59,12 +59,15 @@ test_images = np.empty((np.shape(test_labels)[0], 84, 84, 3))
 
 for i in range(np.shape(train_labels)[0]):
     train_labels[i] = labels[train_vals[i,0]]
-    validate_labels[i] = labels[validate_vals[i,0]]
-    test_labels[i] = labels[test_vals[i,0]]
-
     train_images[i] = img_array[train_vals[i,0]]
-    validate_images[i] = img_array[validate_vals[i,0]]
-    test_images[i] = img_array[test_vals[i,0]]
+
+for j in range(np.shape(validate_labels)[0]):
+    validate_labels[j] = labels[validate_vals[j,0]]
+    validate_images[j] = img_array[validate_vals[j,0]]
+
+for k in range(np.shape(test_labels)[0]):
+    test_labels[k] = labels[test_vals[k,0]]
+    test_images[k] = img_array[test_vals[k,0]]
 
 print("CHECK SIZES\n-------------------------------------- \nThe size of training dataset is:", np.shape(train_images), "\nThe size of the validate dataset is:", np.shape(validate_images))    
 
