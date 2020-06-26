@@ -13,9 +13,99 @@ print("tensorflow version is:", tf.__version__)
 
 # reading data from csv which has filename, label stored as strings
 #traindf = pd.read_csv('/home/agtrivedi/repos/pollen_project/anu/segm_ims.csv', dtype = str)
-traindf = pd.read_csv('/home/agtrivedi/repos/pollen_project/anu/obj_ims.csv', dtype = str)
+#traindf = pd.read_csv('/home/agtrivedi/repos/pollen_project/anu/obj_ims.csv', dtype = str)
 #traindf = pd.read_csv('/home/agtrivedi/repos/pollen_project/anu/mask_ims.csv', dtype = str)
 
+train_path1 = open('/home/agtrivedi/repos/pollen_project/matthew/Pollen_Classifier/train/images/1/train_OBJ/paths.txt').read().splitlines()
+train_path2 = open('/home/agtrivedi/repos/pollen_project/matthew/Pollen_Classifier/train/images/2/train_OBJ/paths.txt').read().splitlines()
+train_path3 = open('/home/agtrivedi/repos/pollen_project/matthew/Pollen_Classifier/train/images/3/train_OBJ/paths.txt').read().splitlines()
+train_path4 = open('/home/agtrivedi/repos/pollen_project/matthew/Pollen_Classifier/train/images/4/train_OBJ/paths.txt').read().splitlines()
+
+print(len(train_path1))
+print(len(train_path2))
+print(len(train_path3))
+print(len(train_path4))
+
+train_labels = []
+for _ in train_path1:
+    label = [1]
+    train_labels.append(label)
+for _ in train_path2:
+    label = [2]
+    train_labels.append(label)
+for _ in train_path3:
+    label = [3]
+    train_labels.append(label)
+for _ in train_path4:
+    label = [4]
+    train_labels.append(label)
+train_labels = np.asarray(train_labels)
+print(train_labels.shape)
+
+train_images = []
+train_labels = []
+
+# first element for padding, classes begin at 1
+label_counts = [len(train_path1), len(train_path2), len(train_path3), len(train_path4)] 
+
+total_labels = label_counts[0] + label_counts[1] + label_counts[2] + label_counts[3]
+
+for i in range(total_labels):
+    # Get random label that is still available
+    while True:
+        random_label = random.randint(1, 4)
+        if (label_counts[random_label-1] > 0):
+            label_counts[random_label-1] = label_counts[random_label-1] - 1 # decrement the label count
+            break
+    
+    # append the label to the label list and add the corresponding image to the image list
+    train_labels.append([random_label - 1]) 
+    if random_label == 1:
+        path = train_path1.pop(len(train_path1) - 1) # get the path at the end of the list
+        image = imread(path)
+        image = np.asarray(image, dtype=np.float64)
+        train_images.append(image)
+    elif random_label == 2:
+        path = train_path2.pop(len(train_path2) - 1) # get the path at the end of the list
+        image = imread(path)
+        image = np.asarray(image, dtype=np.float64)
+        train_images.append(image)
+    elif random_label == 3:
+        path = train_path3.pop(len(train_path3) - 1) # get the path at the end of the list
+        image = imread(path)
+        image = np.asarray(image, dtype=np.float64)
+        train_images.append(image)
+    elif random_label == 4:
+        path = train_path4.pop(len(train_path4) - 1) # get the path at the end of the list
+        image = imread(path)
+        image = np.asarray(image, dtype=np.float64)
+        train_images.append(image)
+    else:
+        print("Issue...")
+
+train_images = np.asarray(train_images)
+train_labels = np.asarray(train_labels)
+print(train_images.shape)
+print(train_labels.shape)
+
+(train_images, test_images) = np.split(train_images, [10000], 0)
+(train_labels, test_labels) = np.split(train_labels, [10000], 0)
+
+# further break up the test_images to keep back some secret data that is not used to train the model
+(secret_images, test_images) = np.split(test_images, [abs(1000 - test_images.shape[0])], 0)
+(secret_labels, test_labels) = np.split(test_labels, [abs(1000 - test_labels.shape[0])], 0)
+
+print(train_images.shape)
+print(train_labels.shape)
+print(test_images.shape)
+print(test_labels.shape)
+print(secret_images.shape)
+print(secret_labels.shape)
+
+
+
+
+"""
 datagen = ImageDataGenerator(rescale=1./255.)
 train_generator = datagen.flow_from_dataframe(
         dataframe = traindf,
@@ -101,3 +191,5 @@ label_pred = label_array[9744, 0]
 prediction = model.predict(image_pred, batch_size=1, verbose=1)
 print("predicted label:", np.argmax(prediction))
 print("true label:", label_pred)
+
+"""
