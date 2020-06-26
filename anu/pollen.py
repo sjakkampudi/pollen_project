@@ -71,16 +71,26 @@ for i in range(total_labels):
     train_labels.append([random_label - 1]) 
     if random_label == 1:
         path = train_path1.pop(len(train_path1) - 1) # get the path at the end of the list
-        image = imread(path)
+        image = Image.open(path)
+        image_rot = image.rotate(45)
         image = np.asarray(image, dtype=np.float64)
-        image2 = image.transform(Image.EXTENT)           
+        image_rot = np.asarray(image_rot, dtype=np.float64)
         train_images.append(image)
-        train_images.append(image2)
+        train_images.append(image_rot)
+        label = [1]
+        train_labels.append(label)
+        train_labels.append(label)
     elif random_label == 2:
         path = train_path2.pop(len(train_path2) - 1) # get the path at the end of the list
-        image = imread(path)
+        image = Image.open(path)
+        image_rot = image.rotate(45)
         image = np.asarray(image, dtype=np.float64)
+        image_rot = np.asarray(image_rot, dtype=np.float64)
         train_images.append(image)
+        train_images.append(image_rot)
+        label = [2]
+        train_labels.append(label)
+        train_labels.append(label)
     elif random_label == 3:
         path = train_path3.pop(len(train_path3) - 1) # get the path at the end of the list
         image = imread(path)
@@ -88,9 +98,15 @@ for i in range(total_labels):
         train_images.append(image)
     elif random_label == 4:
         path = train_path4.pop(len(train_path4) - 1) # get the path at the end of the list
-        image = imread(path)
+        image = Image.open(path)
+        image_rot = image.rotate(45)
         image = np.asarray(image, dtype=np.float64)
+        image_rot = np.asarray(image_rot, dtype=np.float64)
         train_images.append(image)
+        train_images.append(image_rot)
+        label = [4]
+        train_labels.append(label)
+        train_labels.append(label)
     else:
         print("Issue...")
 
@@ -113,10 +129,61 @@ print(test_labels.shape)
 print(secret_images.shape)
 print(secret_labels.shape)
 
+train_images = train_images / 255
+test_images = test_images / 255
+secret_images = secret_images / 255
+
+model = models.Sequential() # Indeed a model that can be implemented as a CNN
+model.add(layers.Conv2D(84, (3, 3), activation='relu', input_shape=(84, 84, 3)))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(168, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(168, (3, 3), activation='relu'))
+print(model.summary())
+
+model.add(layers.Flatten()) # flatten the 3-D tensor output of the preceding layer into a
+                            # 1-D vector to feed to the top Dense layers
+model.add(layers.Dense(168, activation='relu'))
+model.add(layers.Dense(4)) # final Dense layer has 10 neurons representing the 10 classes
+print(model.summary())
+
+model.compile(optimizer='adam',
+              loss="mse",
+              metrics=['accuracy'])
+
+history = model.fit(train_images, train_labels, epochs=2,
+                    validation_data=(test_images, test_labels))
+
+test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=1)
+image_number = 2
+
+class_names = ['1', '2', '3', '4']
+image = np.array([secret_images[image_number]], dtype=np.float32)
+label = class_names[int(secret_labels[image_number])]
+print("label: " + label)
+print("shape: " + str(image.shape))
+
+# Do the prediction
+prediction = model.predict(image, batch_size=1, verbose=1)
+print("model predicted: " + class_names[np.argmax(prediction)])
+print("ground truth label: " + label)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 """
+
 datagen = ImageDataGenerator(rescale=1./255.)
 train_generator = datagen.flow_from_dataframe(
         dataframe = traindf,
@@ -202,5 +269,4 @@ label_pred = label_array[9744, 0]
 prediction = model.predict(image_pred, batch_size=1, verbose=1)
 print("predicted label:", np.argmax(prediction))
 print("true label:", label_pred)
-
 """
