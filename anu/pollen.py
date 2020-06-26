@@ -77,8 +77,7 @@ for i in range(total_labels):
         image_rot = np.asarray(image_rot, dtype=np.float64)
         train_images.append(image)
         train_images.append(image_rot)
-        label = [1]
-        train_labels.append(label)
+        label = [0]
         train_labels.append(label)
     elif random_label == 2:
         path = train_path2.pop(len(train_path2) - 1) # get the path at the end of the list
@@ -88,8 +87,7 @@ for i in range(total_labels):
         image_rot = np.asarray(image_rot, dtype=np.float64)
         train_images.append(image)
         train_images.append(image_rot)
-        label = [2]
-        train_labels.append(label)
+        label = [1]
         train_labels.append(label)
     elif random_label == 3:
         path = train_path3.pop(len(train_path3) - 1) # get the path at the end of the list
@@ -104,8 +102,7 @@ for i in range(total_labels):
         image_rot = np.asarray(image_rot, dtype=np.float64)
         train_images.append(image)
         train_images.append(image_rot)
-        label = [4]
-        train_labels.append(label)
+        label = [3]
         train_labels.append(label)
     else:
         print("Issue...")
@@ -134,7 +131,7 @@ test_images = test_images / 255
 secret_images = secret_images / 255
 
 model = models.Sequential() # Indeed a model that can be implemented as a CNN
-model.add(layers.Conv2D(84, (3, 3), activation='relu', input_shape=(84, 84, 3)))
+model.add(layers.Conv2D(168, (3, 3), activation='relu', input_shape=(84, 84, 3)))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Conv2D(168, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
@@ -143,12 +140,13 @@ print(model.summary())
 
 model.add(layers.Flatten()) # flatten the 3-D tensor output of the preceding layer into a
                             # 1-D vector to feed to the top Dense layers
+model.add(layers.Dropout(0.5))
 model.add(layers.Dense(168, activation='relu'))
 model.add(layers.Dense(4)) # final Dense layer has 10 neurons representing the 10 classes
 print(model.summary())
 
 model.compile(optimizer='adam',
-              loss="mse",
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
 history = model.fit(train_images, train_labels, epochs=2,
