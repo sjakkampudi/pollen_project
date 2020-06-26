@@ -51,6 +51,7 @@ label_counts = [len(train_path1), len(train_path2), len(train_path3), len(train_
 total_labels = label_counts[0] + label_counts[1] + label_counts[2] + label_counts[3]
 
 type1, type2, type3, type4 = 0, 0, 0, 0
+random.seed(100)
 
 for i in range(total_labels):
     # Get random label that is still available
@@ -66,18 +67,18 @@ for i in range(total_labels):
     if random_label == 1:
         path = train_path1.pop(len(train_path1) - 1) # get the path at the end of the list
         image = Image.open(path)
-        image_rot = image.rotate(45)
+        #image_rot = image.rotate(45)
         #image_t = image.rotate(90)
         image = np.asarray(image, dtype=np.float64)
-        image_rot = np.asarray(image_rot, dtype=np.float64)
+        #image_rot = np.asarray(image_rot, dtype=np.float64)
         #image_t = np.asarray(image_t, dtype=np.float64)
         train_images.append(image)
-        train_images.append(image_rot)
+        #train_images.append(image_rot)
         #train_images.append(image_t)
         label = [0]
-        train_labels.append(label)
         #train_labels.append(label)
-        type1 += 2
+        #train_labels.append(label)
+        type1 += 1
     elif random_label == 2:
         path = train_path2.pop(len(train_path2) - 1) # get the path at the end of the list
         image = Image.open(path)
@@ -103,13 +104,17 @@ for i in range(total_labels):
         path = train_path4.pop(len(train_path4) - 1) # get the path at the end of the list
         image = Image.open(path)
         image_rot = image.rotate(45)
+        image_t = image.rotate(90)
         image = np.asarray(image, dtype=np.float64)
         image_rot = np.asarray(image_rot, dtype=np.float64)
+        image_t = np.asarray(image_t, dtype=np.float64)
         train_images.append(image)
         train_images.append(image_rot)
+        train_images.append(image_t)
         label = [3]
         train_labels.append(label)
-        type4 += 2
+        train_labels.append(label)
+        type4 += 3
     else:
         print("Issue...")
 
@@ -120,6 +125,20 @@ print("Size of training labels array before splitting:", train_labels.shape)
 
 (train_images, test_images) = np.split(train_images, [10000], 0)
 (train_labels, test_labels) = np.split(train_labels, [10000], 0)
+
+train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
+
+for i in range(len(train_labels)):
+    if train_labels[i,0] == 0:
+        train_1_count += 1
+    elif train_labels[i,0] == 1:
+        train_2_count += 1
+    elif train_labels[i,0] == 2:
+        train_3_count += 1
+    elif train_labels[i,0] == 3:
+        train_4_count += 1
+
+print("LOOK HERE", train_1_count, train_2_count, train_3_count, train_4_count)
 
 # further break up the test_images to keep back some secret data that is not used to train the model
 (secret_images, test_images) = np.split(test_images, [abs(1000 - test_images.shape[0])], 0)
@@ -150,7 +169,7 @@ print(model.summary())
 
 model.add(layers.Flatten()) # flatten the 3-D tensor output of the preceding layer into a
                             # 1-D vector to feed to the top Dense layers
-model.add(layers.Dropout(0.5))
+#model.add(layers.Dropout(0.5))
 model.add(layers.Dense(168, activation='relu'))
 model.add(layers.Dense(4)) # final Dense layer has 10 neurons representing the 10 classes
 print(model.summary())
