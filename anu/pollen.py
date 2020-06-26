@@ -1,5 +1,7 @@
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import os
+import random
+from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -8,6 +10,13 @@ from tensorflow import keras
 from tensorflow.keras import models, layers
 from tensorflow.keras.preprocessing import image
 from numpy.random import seed, randint
+from imageio import imread
+import numpy as np
+import matplotlib.pyplot as plt
+import random
+import tensorflow as tf
+from tensorflow.keras import datasets, layers, models
+
 
 print("tensorflow version is:", tf.__version__)
 
@@ -64,7 +73,9 @@ for i in range(total_labels):
         path = train_path1.pop(len(train_path1) - 1) # get the path at the end of the list
         image = imread(path)
         image = np.asarray(image, dtype=np.float64)
+        image2 = image.transform(Image.EXTENT)           
         train_images.append(image)
+        train_images.append(image2)
     elif random_label == 2:
         path = train_path2.pop(len(train_path2) - 1) # get the path at the end of the list
         image = imread(path)
