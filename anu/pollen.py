@@ -156,4 +156,3 @@ print("shape: " + str(image.shape))
 prediction = model.predict(image, batch_size=1, verbose=1)
 print("model predicted: " + class_names[np.argmax(prediction)])
 print("ground truth label: " + label)
-
