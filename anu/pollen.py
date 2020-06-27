@@ -12,7 +12,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 from tensorflow.keras import datasets, layers, models
+from tensorflow.random import set_seed
 
+seed(1)
+set_seed(1)
 
 print("tensorflow version is:", tf.__version__)
 
@@ -51,7 +54,6 @@ label_counts = [len(train_path1), len(train_path2), len(train_path3), len(train_
 total_labels = label_counts[0] + label_counts[1] + label_counts[2] + label_counts[3]
 
 type1, type2, type3, type4 = 0, 0, 0, 0
-random.seed(100)
 
 for i in range(total_labels):
     # Get random label that is still available
