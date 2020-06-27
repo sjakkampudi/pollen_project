@@ -69,33 +69,41 @@ for i in range(total_labels):
     if random_label == 1:
         path = train_path1.pop(len(train_path1) - 1) # get the path at the end of the list
         image = Image.open(path)
-        #image_rot = image.rotate(45)
-        #image_t = image.rotate(90)
+        image_45 = image.rotate(45)
+        image_90 = image.rotate(90)
         image = np.asarray(image, dtype=np.float64)
-        #image_rot = np.asarray(image_rot, dtype=np.float64)
-        #image_t = np.asarray(image_t, dtype=np.float64)
+        image_45 = np.asarray(image_45, dtype=np.float64)
+        image_90 = np.asarray(image_90, dtype=np.float64)
         train_images.append(image)
-        #train_images.append(image_rot)
-        #train_images.append(image_t)
+        train_images.append(image_45)
+        train_images.append(image_90)
         label = [0]
-        #train_labels.append(label)
-        #train_labels.append(label)
-        type1 += 1
+        train_labels.append(label)
+        train_labels.append(label)
+        type1 += 3
     elif random_label == 2:
         path = train_path2.pop(len(train_path2) - 1) # get the path at the end of the list
         image = Image.open(path)
-        image_rot = image.rotate(45)
-        image_t = image.rotate(90)
+        image_45 = image.rotate(45)
+        image_90 = image.rotate(90)
+        image_60 = image.rotate(60)
+        image_15 = image.rotate(15)
         image = np.asarray(image, dtype=np.float64)
-        image_rot = np.asarray(image_rot, dtype=np.float64)
-        image_t = np.asarray(image_t, dtype=np.float64)
+        image_45 = np.asarray(image_45, dtype=np.float64)
+        image_90 = np.asarray(image_90, dtype=np.float64)
+        image_60 = np.asarray(image_60, dtype=np.float64)
+        image_15 = np.asarray(image_15, dtype=np.float64)
         train_images.append(image)
-        train_images.append(image_rot)
-        train_images.append(image_t)
+        train_images.append(image_45)
+        train_images.append(image_90)
+        train_images.append(image_60)
+        train_images.append(image_15)
         label = [1]
         train_labels.append(label)
         train_labels.append(label)
-        type2 += 3
+        train_labels.append(label)
+        train_labels.append(label)
+        type2 += 5
     elif random_label == 3:
         path = train_path3.pop(len(train_path3) - 1) # get the path at the end of the list
         image = imread(path)
@@ -105,18 +113,26 @@ for i in range(total_labels):
     elif random_label == 4:
         path = train_path4.pop(len(train_path4) - 1) # get the path at the end of the list
         image = Image.open(path)
-        image_rot = image.rotate(45)
-        image_t = image.rotate(90)
+        image_45 = image.rotate(45)
+        image_90 = image.rotate(90)
+        image_60 = image.rotate(60)
+        image_15 = image.rotate(15)
         image = np.asarray(image, dtype=np.float64)
-        image_rot = np.asarray(image_rot, dtype=np.float64)
-        image_t = np.asarray(image_t, dtype=np.float64)
+        image_45 = np.asarray(image_45, dtype=np.float64)
+        image_90 = np.asarray(image_90, dtype=np.float64)
+        image_60 = np.asarray(image_60, dtype=np.float64)
+        image_15 = np.asarray(image_15, dtype=np.float64)
         train_images.append(image)
-        train_images.append(image_rot)
-        train_images.append(image_t)
+        train_images.append(image_45)
+        train_images.append(image_90)
+        train_images.append(image_60)
+        train_images.append(image_15)
         label = [3]
         train_labels.append(label)
         train_labels.append(label)
-        type4 += 3
+        train_labels.append(label)
+        train_labels.append(label)
+        type4 += 5
     else:
         print("Issue...")
 
@@ -125,8 +141,8 @@ train_labels = np.asarray(train_labels)
 print("Size of training images array before splitting:", train_images.shape)
 print("Size of training labels array before splitting:", train_labels.shape)
 
-(train_images, test_images) = np.split(train_images, [10000], 0)
-(train_labels, test_labels) = np.split(train_labels, [10000], 0)
+(train_images, test_images) = np.split(train_images, [17000], 0)
+(train_labels, test_labels) = np.split(train_labels, [17000], 0)
 
 train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
 
@@ -180,7 +196,7 @@ model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=2,
+history = model.fit(train_images, train_labels, epochs=4,
                     validation_data=(test_images, test_labels))
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=1)
