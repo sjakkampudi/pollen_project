@@ -106,10 +106,19 @@ for i in range(total_labels):
         type2 += 5
     elif random_label == 3:
         path = train_path3.pop(len(train_path3) - 1) # get the path at the end of the list
-        image = imread(path)
+        image = Image.open(path)
+        image_45 = image.rotate(45)
+        image_90 = image.rotate(90)
         image = np.asarray(image, dtype=np.float64)
+        image_45 = np.asarray(image_45, dtype=np.float64)
+        image_90 = np.asarray(image_90, dtype=np.float64)
         train_images.append(image)
-        type3 += 1
+        train_images.append(image_45)
+        train_images.append(image_90)
+        label = [2]
+        train_labels.append(label)
+        train_labels.append(label)
+        type3 += 3
     elif random_label == 4:
         path = train_path4.pop(len(train_path4) - 1) # get the path at the end of the list
         image = Image.open(path)
@@ -141,8 +150,8 @@ train_labels = np.asarray(train_labels)
 print("Size of training images array before splitting:", train_images.shape)
 print("Size of training labels array before splitting:", train_labels.shape)
 
-(train_images, test_images) = np.split(train_images, [17000], 0)
-(train_labels, test_labels) = np.split(train_labels, [17000], 0)
+(train_images, test_images) = np.split(train_images, [15000], 0)
+(train_labels, test_labels) = np.split(train_labels, [15000], 0)
 
 train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
 
@@ -187,7 +196,8 @@ print(model.summary())
 
 model.add(layers.Flatten()) # flatten the 3-D tensor output of the preceding layer into a
                             # 1-D vector to feed to the top Dense layers
-#model.add(layers.Dropout(0.5))
+model.add(layers.Dropout(0.5))
+#model.add(layers.SpatialDropout2D(0.25))
 model.add(layers.Dense(168, activation='relu'))
 model.add(layers.Dense(4)) # final Dense layer has 10 neurons representing the 10 classes
 print(model.summary())
@@ -196,7 +206,7 @@ model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=4,
+history = model.fit(train_images, train_labels, epochs=2, batch_size=20,
                     validation_data=(test_images, test_labels))
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=1)
