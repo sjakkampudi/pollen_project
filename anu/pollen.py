@@ -14,8 +14,13 @@ import random
 from tensorflow.keras import datasets, layers, models
 from tensorflow.random import set_seed
 
-seed(1)
-set_seed(1)
+seed_value = 50
+os.environ['PYTHONHASHSEED']=str(seed_value)
+
+random.seed(seed_value)
+np.random.seed(seed_value)
+set_seed(seed_value)
+
 
 print("tensorflow version is:", tf.__version__)
 
