@@ -24,15 +24,15 @@ set_seed(seed_value)
 
 print("tensorflow version is:", tf.__version__)
 
-train_path1 = open('/home/agtrivedi/repos/pollen_project/matthew/Pollen_Classifier/train/images/1/train_OBJ/paths.txt').read().splitlines()
-train_path2 = open('/home/agtrivedi/repos/pollen_project/matthew/Pollen_Classifier/train/images/2/train_OBJ/paths.txt').read().splitlines()
-train_path3 = open('/home/agtrivedi/repos/pollen_project/matthew/Pollen_Classifier/train/images/3/train_OBJ/paths.txt').read().splitlines()
-train_path4 = open('/home/agtrivedi/repos/pollen_project/matthew/Pollen_Classifier/train/images/4/train_OBJ/paths.txt').read().splitlines()
+train_path1 = open('/Users/anu/Desktop/pollen_project/matthew/Pollen_Classifier/train/images/1/train_OBJ/paths.txt').read().splitlines()
+train_path2 = open('/Users/anu/Desktop/pollen_project/matthew/Pollen_Classifier/train/images/2/train_OBJ/paths.txt').read().splitlines()
+train_path3 = open('/Users/anu/Desktop/pollen_project/matthew/Pollen_Classifier/train/images/3/train_OBJ/paths.txt').read().splitlines()
+train_path4 = open('/Users/anu/Desktop/pollen_project/matthew/Pollen_Classifier/train/images/4/train_OBJ/paths.txt').read().splitlines()
 
-print(len(train_path1))
-print(len(train_path2))
-print(len(train_path3))
-print(len(train_path4))
+print("Total class 1 images:", len(train_path1))
+print("Total class 2 images:", len(train_path2))
+print("Total class 3 images:", len(train_path3))
+print("Total class 4 images:", len(train_path4))
 
 train_labels = []
 for _ in train_path1:
@@ -152,40 +152,66 @@ for i in range(total_labels):
 
 train_images = np.asarray(train_images)
 train_labels = np.asarray(train_labels)
-print("Size of training images array before splitting:", train_images.shape)
-print("Size of training labels array before splitting:", train_labels.shape)
 
-(train_images, test_images) = np.split(train_images, [15000], 0)
-(train_labels, test_labels) = np.split(train_labels, [15000], 0)
+training_size = 15000
+
+#(train_images, test_images) = np.split(train_images, [size], 0)
+#(train_labels, test_labels) = np.split(train_labels, [size], 0)
+
+(train_images_split, secret_images) = np.split(train_images, [training_size], 0)
+(train_labels_split, secret_labels) = np.split(train_labels, [training_size], 0)
+
+
+testing_size = 1000
+test_images = np.ones((testing_size, 84, 84, 3))
+test_labels = np.ones((testing_size, 1))
+
+for i in range(testing_size):
+    rand_array = random.sample(range(len(train_images)), testing_size)
+    rand_array = np.asarray(rand_array)
+    test_images[i] = train_images[rand_array[i]]
+    test_labels[i] = train_labels[rand_array[i]]
+#    print(range(testing_size), rand_array.shape)
+        
+
+#print("Size of training images array before splitting:", train_images.shape)
+#print("Size of training labels array before splitting:", train_labels.shape)
+    
+
+
+print(len(train_labels))
+
+
 
 train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
 
-for i in range(len(train_labels)):
-    if train_labels[i,0] == 0:
+for i in range(len(train_labels_split)):
+    if train_labels_split[i,0] == 0:
         train_1_count += 1
-    elif train_labels[i,0] == 1:
+    elif train_labels_split[i,0] == 1:
         train_2_count += 1
-    elif train_labels[i,0] == 2:
+    elif train_labels_split[i,0] == 2:
         train_3_count += 1
-    elif train_labels[i,0] == 3:
+    elif train_labels_split[i,0] == 3:
         train_4_count += 1
 
-print("LOOK HERE", train_1_count, train_2_count, train_3_count, train_4_count)
+print("Out of", training_size, "images, there are", train_1_count, "in class 1,", train_2_count, \
+      "in class 2,", train_3_count, "in class 3,", "and", train_4_count, "in class 4")
 
 # further break up the test_images to keep back some secret data that is not used to train the model
-(secret_images, test_images) = np.split(test_images, [abs(1000 - test_images.shape[0])], 0)
-(secret_labels, test_labels) = np.split(test_labels, [abs(1000 - test_labels.shape[0])], 0)
+#(secret_images, test_images) = np.split(test_images, [abs(1000 - test_images.shape[0])], 0)
+#(secret_labels, test_labels) = np.split(test_labels, [abs(1000 - test_labels.shape[0])], 0)
 
-print("Train iamges:", train_images.shape)
-print("Train labels:", train_labels.shape)
-print("Test images:", test_images.shape)
-print("Test labels:", test_labels.shape)
-print("Secret images:", secret_images.shape)
-print("Secret labels:", secret_labels.shape)
+print("Train images:", train_images.shape[0])
+print("Train labels:", train_labels.shape[0])
+print("Test images:", test_images.shape[0])
+print("Test labels:", test_labels.shape[0])
+print("Secret images:", secret_images.shape[0])
+print("Secret labels:", secret_labels.shape[0])
 
-print("Total type 1 images:", type1, "\nTotal type 2 images:", type2, "\nTotal type 3 images:", type3, "\nTotal type 4 images:", type4)
-print("-------------------------------------------")
-print("Total images:", type1+type2+type3+type4)
+#print("Total type 1 images:", type1, "\nTotal type 2 images:", type2, "\nTotal type 3 images:", type3, "\nTotal type 4 images:", type4)
+#print("-------------------------------------------")
+#print("Total images:", type1+type2+type3+type4)
 
 train_images = train_images / 255
 test_images = test_images / 255
@@ -211,13 +237,13 @@ model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=2, batch_size=20,
+history = model.fit(train_images_split, train_labels_split, epochs=2, batch_size=20,
                     validation_data=(test_images, test_labels))
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=1)
 image_number = 2
 
-class_names = ['1', '2', '3', '4']
+class_names = ['0', '1', '2', '3']
 image = np.array([secret_images[image_number]], dtype=np.float32)
 label = class_names[int(secret_labels[image_number])]
 print("label: " + label)
