@@ -169,20 +169,33 @@ test_labels = np.ones((testing_size, 1))
 for i in range(testing_size):
     rand_array = random.sample(range(len(train_images)), testing_size)
     rand_array = np.asarray(rand_array)
-    test_images[i] = train_images[rand_array[i]]
-    test_labels[i] = train_labels[rand_array[i]]
-#    print(range(testing_size), rand_array.shape)
-        
+
+    for j in range(int(testing_size/4)):
+        if train_labels[rand_array[i]] == 0:
+            test_images[j] = train_images[rand_array[i]]
+            test_labels[j] = train_labels[rand_array[i]]
+            
+    for j in range(int(testing_size/4), 2*int(testing_size/4)):
+        if train_labels[rand_array[i]] == 1:
+            test_images[j] = train_images[rand_array[i]]
+            test_labels[j] = train_labels[rand_array[i]]
+            
+    for j in range(2*int(testing_size/4), 3*int(testing_size/4)):
+        if train_labels[rand_array[i]] == 2:
+            test_images[j] = train_images[rand_array[i]]
+            test_labels[j] = train_labels[rand_array[i]]
+            
+    for j in range(3*int(testing_size/4), 4*int(testing_size/4)):
+        if train_labels[rand_array[i]] == 3:
+            test_images[j] = train_images[rand_array[i]]
+            test_labels[j] = train_labels[rand_array[i]]        
+    
+print(test_images.shape)    
 
 #print("Size of training images array before splitting:", train_images.shape)
 #print("Size of training labels array before splitting:", train_labels.shape)
     
-
-
-print(len(train_labels))
-
-
-
+"""
 train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
 
 for i in range(len(train_labels_split)):
@@ -227,7 +240,7 @@ print(model.summary())
 
 model.add(layers.Flatten()) # flatten the 3-D tensor output of the preceding layer into a
                             # 1-D vector to feed to the top Dense layers
-model.add(layers.Dropout(0.5))
+#model.add(layers.Dropout(0.5))
 #model.add(layers.SpatialDropout2D(0.25))
 model.add(layers.Dense(168, activation='relu'))
 model.add(layers.Dense(4)) # final Dense layer has 10 neurons representing the 10 classes
@@ -237,10 +250,10 @@ model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-history = model.fit(train_images_split, train_labels_split, epochs=2, batch_size=20,
+history = model.fit(train_images_split, train_labels_split, epochs=2, #batch_size=20,
                     validation_data=(test_images, test_labels))
 
-test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=1)
+test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
 image_number = 2
 
 class_names = ['0', '1', '2', '3']
@@ -253,3 +266,4 @@ print("shape: " + str(image.shape))
 prediction = model.predict(image, batch_size=1, verbose=1)
 print("model predicted: " + class_names[np.argmax(prediction)])
 print("ground truth label: " + label)
+"""
