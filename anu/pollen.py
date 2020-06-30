@@ -24,10 +24,10 @@ set_seed(seed_value)
 
 print("tensorflow version is:", tf.__version__)
 
-train_path1 = open('/Users/anu/Desktop/pollen_project/matthew/Pollen_Classifier/train/images/1/train_OBJ/paths.txt').read().splitlines()
-train_path2 = open('/Users/anu/Desktop/pollen_project/matthew/Pollen_Classifier/train/images/2/train_OBJ/paths.txt').read().splitlines()
-train_path3 = open('/Users/anu/Desktop/pollen_project/matthew/Pollen_Classifier/train/images/3/train_OBJ/paths.txt').read().splitlines()
-train_path4 = open('/Users/anu/Desktop/pollen_project/matthew/Pollen_Classifier/train/images/4/train_OBJ/paths.txt').read().splitlines()
+train_path1 = open('../matthew/Pollen_Classifier/train/images/1/train_OBJ/paths.txt').read().splitlines()
+train_path2 = open('../matthew/Pollen_Classifier/train/images/2/train_OBJ/paths.txt').read().splitlines()
+train_path3 = open('../matthew/Pollen_Classifier/train/images/3/train_OBJ/paths.txt').read().splitlines()
+train_path4 = open('../matthew/Pollen_Classifier/train/images/4/train_OBJ/paths.txt').read().splitlines()
 
 print("Total class 1 images:", len(train_path1))
 print("Total class 2 images:", len(train_path2))
@@ -195,7 +195,6 @@ print(test_images.shape)
 #print("Size of training images array before splitting:", train_images.shape)
 #print("Size of training labels array before splitting:", train_labels.shape)
     
-"""
 train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
 
 for i in range(len(train_labels_split)):
@@ -231,11 +230,11 @@ test_images = test_images / 255
 secret_images = secret_images / 255
 
 model = models.Sequential() # Indeed a model that can be implemented as a CNN
-model.add(layers.Conv2D(168, (3, 3), activation='relu', input_shape=(84, 84, 3)))
+model.add(layers.Conv2D(1, (3, 3), activation='relu', input_shape=(84, 84, 3)))
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(168, (3, 3), activation='relu'))
+model.add(layers.Conv2D(16, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(168, (3, 3), activation='relu'))
+model.add(layers.Conv2D(16, (3, 3), activation='relu'))
 print(model.summary())
 
 model.add(layers.Flatten()) # flatten the 3-D tensor output of the preceding layer into a
@@ -266,4 +265,3 @@ print("shape: " + str(image.shape))
 prediction = model.predict(image, batch_size=1, verbose=1)
 print("model predicted: " + class_names[np.argmax(prediction)])
 print("ground truth label: " + label)
-"""
