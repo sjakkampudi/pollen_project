@@ -5,13 +5,11 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import models, layers
 from tensorflow.keras.preprocessing import image
-from numpy.random import seed, randint
-from imageio import imread
 import numpy as np
 import matplotlib.pyplot as plt
-import random
-from tensorflow.keras import datasets, layers, models
+from tensorflow.keras import datasets, models
 from tensorflow.random import set_seed
+from sklearn.model_selection import train_test_split
 
 seed_value = 50
 os.environ['PYTHONHASHSEED']=str(seed_value)
@@ -111,18 +109,9 @@ for i in range(total_labels):
     elif random_label == 3:
         path = train_path3.pop(len(train_path3) - 1) # get the path at the end of the list
         image = Image.open(path)
-        image_45 = image.rotate(45)
-        image_90 = image.rotate(90)
         image = np.asarray(image, dtype=np.float64)
-        image_45 = np.asarray(image_45, dtype=np.float64)
-        image_90 = np.asarray(image_90, dtype=np.float64)
         train_images.append(image)
-        train_images.append(image_45)
-        train_images.append(image_90)
-        label = [2]
-        train_labels.append(label)
-        train_labels.append(label)
-        type3 += 3
+        type3 += 1
     elif random_label == 4:
         path = train_path4.pop(len(train_path4) - 1) # get the path at the end of the list
         image = Image.open(path)
@@ -152,22 +141,10 @@ for i in range(total_labels):
 train_images = np.asarray(train_images)
 train_labels = np.asarray(train_labels)
 
-training_size = 15000
-
-(test_images, train_images) = np.split(train_images, [training_size], 0)
-(test_labels, train_labels) = np.split(train_labels, [training_size], 0)
-
-#(train_images, test_images) = np.split(train_images, [training_size], 0)
-#(train_labels, test_labels) = np.split(train_labels, [training_size], 0)
-
-#(train_images_split, secret_images) = np.split(train_images, [training_size], 0)
-#(train_labels_split, secret_labels) = np.split(train_labels, [training_size], 0)
-
-#print("Size of training images array before splitting:", train_images.shape)
-#print("Size of training labels array before splitting:", train_labels.shape)
-
-(train_images, secret_images) = np.split(train_images, [abs(1000 - train_images.shape[0])], 0)
-(train_labels, secret_labels) = np.split(train_labels, [abs(1000 - train_labels.shape[0])], 0)
+train_images, test_images, train_labels, test_labels = train_test_split(train_images,
+                                                                       train_labels,
+                                                                       test_size = 0.33,
+                                                                       random_state = seed_value)
 
 train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
 
@@ -180,30 +157,38 @@ for i in range(len(train_labels)):
         train_3_count += 1
     elif train_labels[i,0] == 3:
         train_4_count += 1
+        
+total = train_1_count + train_2_count + train_3_count + train_4_count
 
-print("Out of", training_size, "images, there are", train_1_count, "in class 1,", train_2_count, \
+print("Out of", total, "training images, there are", train_1_count, "in class 1,", train_2_count, \
       "in class 2,", train_3_count, "in class 3,", "and", train_4_count, "in class 4")
 
-# further break up the test_images to keep back some secret data that is not used to train the model
-#(secret_images, test_images) = np.split(test_images, [abs(1000 - test_images.shape[0])], 0)
-#(secret_labels, test_labels) = np.split(test_labels, [abs(1000 - test_labels.shape[0])], 0)
+test_1_count, test_2_count, test_3_count, test_4_count = 0, 0, 0, 0
+
+for i in range(len(test_labels)):
+    if test_labels[i,0] == 0:
+        test_1_count += 1
+    elif test_labels[i,0] == 1:
+        test_2_count += 1
+    elif test_labels[i,0] == 2:
+        test_3_count += 1
+    elif test_labels[i,0] == 3:
+        test_4_count += 1
+
+total = test_1_count + test_2_count + test_3_count + test_4_count
+
+print("Out of", total, "testing images, there are", test_1_count, "in class 1,", test_2_count, \
+      "in class 2,", test_3_count, "in class 3,", "and", test_4_count, "in class 4")
 
 print("Train images:", train_images.shape[0])
 print("Train labels:", train_labels.shape[0])
 print("Test images:", test_images.shape[0])
 print("Test labels:", test_labels.shape[0])
-print("Secret images:", secret_images.shape[0])
-print("Secret labels:", secret_labels.shape[0])
-
-#print("Total type 1 images:", type1, "\nTotal type 2 images:", type2, "\nTotal type 3 images:", type3, "\nTotal type 4 images:", type4)
-#print("-------------------------------------------")
-#print("Total images:", type1+type2+type3+type4)
 
 train_images = train_images / 255
 test_images = test_images / 255
-secret_images = secret_images / 255
 
-model = models.Sequential() # Indeed a model that can be implemented as a CNN
+model = models.Sequential() 
 model.add(layers.Conv2D(1, (3, 3), activation='relu', input_shape=(84, 84, 3)))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Conv2D(16, (3, 3), activation='relu'))
@@ -227,15 +212,15 @@ history = model.fit(train_images, train_labels, epochs=2, batch_size=10,
                     validation_data=(test_images, test_labels))
 
 test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
-image_number = 2
-
-class_names = ['0', '1', '2', '3']
-image = np.array([secret_images[image_number]], dtype=np.float32)
-label = class_names[int(secret_labels[image_number])]
-print("label: " + label)
-print("shape: " + str(image.shape))
-
-# Do the prediction
-prediction = model.predict(image, batch_size=1, verbose=1)
-print("model predicted: " + class_names[np.argmax(prediction)])
-print("ground truth label: " + label)
+#image_number = 2
+#
+#class_names = ['0', '1', '2', '3']
+#image = np.array([secret_images[image_number]], dtype=np.float32)
+#label = class_names[int(secret_labels[image_number])]
+#print("label: " + label)
+#print("shape: " + str(image.shape))
+#
+## Do the prediction
+#prediction = model.predict(image, batch_size=1, verbose=1)
+#print("model predicted: " + class_names[np.argmax(prediction)])
+#print("ground truth label: " + label)
