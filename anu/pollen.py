@@ -1,4 +1,3 @@
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import os
 import random
 from PIL import Image
@@ -155,56 +154,31 @@ train_labels = np.asarray(train_labels)
 
 training_size = 15000
 
-#(train_images, test_images) = np.split(train_images, [size], 0)
-#(train_labels, test_labels) = np.split(train_labels, [size], 0)
+(test_images, train_images) = np.split(train_images, [training_size], 0)
+(test_labels, train_labels) = np.split(train_labels, [training_size], 0)
 
-(train_images_split, secret_images) = np.split(train_images, [training_size], 0)
-(train_labels_split, secret_labels) = np.split(train_labels, [training_size], 0)
+#(train_images, test_images) = np.split(train_images, [training_size], 0)
+#(train_labels, test_labels) = np.split(train_labels, [training_size], 0)
 
-
-testing_size = 1000
-test_images = np.ones((testing_size, 84, 84, 3))
-test_labels = np.ones((testing_size, 1))
-
-for i in range(testing_size):
-    rand_array = random.sample(range(len(train_images)), testing_size)
-    rand_array = np.asarray(rand_array)
-
-    for j in range(int(testing_size/4)):
-        if train_labels[rand_array[i]] == 0:
-            test_images[j] = train_images[rand_array[i]]
-            test_labels[j] = train_labels[rand_array[i]]
-            
-    for j in range(int(testing_size/4), 2*int(testing_size/4)):
-        if train_labels[rand_array[i]] == 1:
-            test_images[j] = train_images[rand_array[i]]
-            test_labels[j] = train_labels[rand_array[i]]
-            
-    for j in range(2*int(testing_size/4), 3*int(testing_size/4)):
-        if train_labels[rand_array[i]] == 2:
-            test_images[j] = train_images[rand_array[i]]
-            test_labels[j] = train_labels[rand_array[i]]
-            
-    for j in range(3*int(testing_size/4), 4*int(testing_size/4)):
-        if train_labels[rand_array[i]] == 3:
-            test_images[j] = train_images[rand_array[i]]
-            test_labels[j] = train_labels[rand_array[i]]        
-    
-print(test_images.shape)    
+#(train_images_split, secret_images) = np.split(train_images, [training_size], 0)
+#(train_labels_split, secret_labels) = np.split(train_labels, [training_size], 0)
 
 #print("Size of training images array before splitting:", train_images.shape)
 #print("Size of training labels array before splitting:", train_labels.shape)
-    
+
+(train_images, secret_images) = np.split(train_images, [abs(1000 - train_images.shape[0])], 0)
+(train_labels, secret_labels) = np.split(train_labels, [abs(1000 - train_labels.shape[0])], 0)
+
 train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
 
-for i in range(len(train_labels_split)):
-    if train_labels_split[i,0] == 0:
+for i in range(len(train_labels)):
+    if train_labels[i,0] == 0:
         train_1_count += 1
-    elif train_labels_split[i,0] == 1:
+    elif train_labels[i,0] == 1:
         train_2_count += 1
-    elif train_labels_split[i,0] == 2:
+    elif train_labels[i,0] == 2:
         train_3_count += 1
-    elif train_labels_split[i,0] == 3:
+    elif train_labels[i,0] == 3:
         train_4_count += 1
 
 print("Out of", training_size, "images, there are", train_1_count, "in class 1,", train_2_count, \
@@ -234,7 +208,7 @@ model.add(layers.Conv2D(1, (3, 3), activation='relu', input_shape=(84, 84, 3)))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Conv2D(16, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(16, (3, 3), activation='relu'))
+model.add(layers.Conv2D(32, (3, 3), activation='relu'))
 print(model.summary())
 
 model.add(layers.Flatten()) # flatten the 3-D tensor output of the preceding layer into a
@@ -249,7 +223,7 @@ model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-history = model.fit(train_images_split, train_labels_split, epochs=2, #batch_size=20,
+history = model.fit(train_images, train_labels, epochs=2, batch_size=10,
                     validation_data=(test_images, test_labels))
 
 test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
