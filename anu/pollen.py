@@ -169,7 +169,7 @@ for i in range(len(test_labels)):
 total = test_1_count + test_2_count + test_3_count + test_4_count
 
 print("Out of", total, "testing images, there are", test_1_count, "in class 1,", test_2_count, \
-      "in class 2,", test_3_count, "in class 3,", "and", test_4_count, "in class 4\n\ns")
+      "in class 2,", test_3_count, "in class 3,", "and", test_4_count, "in class 4\n\n")
 
 train_images = train_images / 255
 test_images = test_images / 255
@@ -199,7 +199,7 @@ model.compile(optimizer='Adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=3, #batch_size=16,
+history = model.fit(train_images, train_labels, epochs=3, batch_size=20,
                     validation_data=(test_images, test_labels))
 
 test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
