@@ -11,7 +11,7 @@ from tensorflow.keras import datasets, models
 from tensorflow.random import set_seed
 from sklearn.model_selection import train_test_split
 
-seed_value = 50
+seed_value = 1
 os.environ['PYTHONHASHSEED']=str(seed_value)
 
 random.seed(seed_value)
@@ -30,22 +30,6 @@ print("Total class 1 images:", len(train_path1))
 print("Total class 2 images:", len(train_path2))
 print("Total class 3 images:", len(train_path3))
 print("Total class 4 images:", len(train_path4))
-
-train_labels = []
-for _ in train_path1:
-    label = [1]
-    train_labels.append(label)
-for _ in train_path2:
-    label = [2]
-    train_labels.append(label)
-for _ in train_path3:
-    label = [3]
-    train_labels.append(label)
-for _ in train_path4:
-    label = [4]
-    train_labels.append(label)
-train_labels = np.asarray(train_labels)
-print(train_labels.shape)
 
 train_images = []
 train_labels = []
@@ -189,38 +173,23 @@ train_images = train_images / 255
 test_images = test_images / 255
 
 model = models.Sequential() 
-model.add(layers.Conv2D(1, (3, 3), activation='relu', input_shape=(84, 84, 3)))
+model.add(layers.Conv2D(16, (3, 3), activation='relu', input_shape=(84, 84, 3)))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Conv2D(16, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Conv2D(32, (3, 3), activation='relu'))
 print(model.summary())
 
-model.add(layers.Flatten()) # flatten the 3-D tensor output of the preceding layer into a
-                            # 1-D vector to feed to the top Dense layers
-#model.add(layers.Dropout(0.5))
-#model.add(layers.SpatialDropout2D(0.25))
+model.add(layers.Flatten()) 
 model.add(layers.Dense(168, activation='relu'))
-model.add(layers.Dense(4)) # final Dense layer has 10 neurons representing the 10 classes
+model.add(layers.Dense(4)) # final Dense layer has 4 neurons representing the 4 classes
 print(model.summary())
 
 model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=2, batch_size=10,
+history = model.fit(train_images, train_labels, epochs=2, #batch_size=16,
                     validation_data=(test_images, test_labels))
 
 test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
-#image_number = 2
-#
-#class_names = ['0', '1', '2', '3']
-#image = np.array([secret_images[image_number]], dtype=np.float32)
-#label = class_names[int(secret_labels[image_number])]
-#print("label: " + label)
-#print("shape: " + str(image.shape))
-#
-## Do the prediction
-#prediction = model.predict(image, batch_size=1, verbose=1)
-#print("model predicted: " + class_names[np.argmax(prediction)])
-#print("ground truth label: " + label)
