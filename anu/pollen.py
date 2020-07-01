@@ -41,6 +41,8 @@ total_labels = label_counts[0] + label_counts[1] + label_counts[2] + label_count
 
 type1, type2, type3, type4 = 0, 0, 0, 0
 
+print("----- AUMGENTING DATA -----")
+
 for i in range(total_labels):
     # Get random label that is still available
     while True:
@@ -125,10 +127,15 @@ for i in range(total_labels):
 train_images = np.asarray(train_images)
 train_labels = np.asarray(train_labels)
 
+print("New training image count:", train_images.shape[0])
+
 train_images, test_images, train_labels, test_labels = train_test_split(train_images,
                                                                        train_labels,
                                                                        test_size = 0.33,
                                                                        random_state = seed_value)
+
+print("----- TRAIN/TEST SPLIT: 66% training, 33% testing -----")
+
 
 train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
 
@@ -162,34 +169,37 @@ for i in range(len(test_labels)):
 total = test_1_count + test_2_count + test_3_count + test_4_count
 
 print("Out of", total, "testing images, there are", test_1_count, "in class 1,", test_2_count, \
-      "in class 2,", test_3_count, "in class 3,", "and", test_4_count, "in class 4")
-
-print("Train images:", train_images.shape[0])
-print("Train labels:", train_labels.shape[0])
-print("Test images:", test_images.shape[0])
-print("Test labels:", test_labels.shape[0])
+      "in class 2,", test_3_count, "in class 3,", "and", test_4_count, "in class 4\n\ns")
 
 train_images = train_images / 255
 test_images = test_images / 255
 
 model = models.Sequential() 
+
 model.add(layers.Conv2D(16, (3, 3), activation='relu', input_shape=(84, 84, 3)))
 model.add(layers.MaxPooling2D((2, 2)))
+
 model.add(layers.Conv2D(16, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
+
 model.add(layers.Conv2D(32, (3, 3), activation='relu'))
-print(model.summary())
+model.add(layers.MaxPooling2D((2, 2)))
+
+model.add(layers.Conv2D(32, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
 
 model.add(layers.Flatten()) 
+
 model.add(layers.Dense(168, activation='relu'))
 model.add(layers.Dense(4)) # final Dense layer has 4 neurons representing the 4 classes
+
 print(model.summary())
 
-model.compile(optimizer='adam',
+model.compile(optimizer='Adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=2, #batch_size=16,
+history = model.fit(train_images, train_labels, epochs=3, #batch_size=16,
                     validation_data=(test_images, test_labels))
 
 test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
