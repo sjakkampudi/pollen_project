@@ -180,13 +180,61 @@ test_images = test_images / 255
 
 dilations = msdnet.dilations.IncrementDilations(10)
 
-n = msdnet.network.MSDNet(100, dilations, 5, 1, gpu = True)
+n = msdnet.network.MSDNet(100, dilations, 5, 4, gpu = True) # the 4 is the number of output channels, one for each label
 #n = msdnet.network.MSDNet(100, dilations, 5, 1, gpu = False) #uncomment this to run on CPU
 
 n.initialize()
 
 flsin = train_images
-flstg = test_images
+flstg = train_labels
 
+dats = []
+for i in range(len(flsin)):
+    d = msdnet.data.ImageFileDataPoint(flsin[i], flstg[i])
+    d_oh = msdnet.data.OneHotDataPoint(d, [0,1,2,3])
+    dats.append(d_oh)
 
+dats = msdnet.data.convert_to_slabs(dats, 2, flip=True)
+dats_augm = [msdnet.data.RotateAndFlipDataPoint(d) for d in dats]
+
+#n.normalizeinout(dats)
+
+bprov = msdnet.data.BatchProvider(dats, 1)
+
+# Define validation data (not using augmentation)
+flsin = test_images
+flstg = test_labels
+datsv = []
+
+for i in range(len(flsin)):
+    d = msdnet.data.ImageFileDataPoint(flsin[i], flstg[i])
+    d_oh = msdnet.data.OneHotDataPoint(d, [0,1,2,3])
+    datsv.append(d_oh)
+
+datsv = msdnet.data.convert_to_slabs(datsv, 2, flip=False)
+
+val = msdnet.validate.MSEValidation(datsv)
+
+t = msdnet.train.AdamAlgorithm(n)
+
+consolelog = msdnet.loggers.ConsoleLogger()
+filelog = msdnet.loggers.FileLogger('log_pollen.txt')
+imagelog = msdnet.loggers.ImageLabelLogger('log_pollen', chan_in = 2, onlyifbetter=True)
+singlechannellog = msdnet.loggers.ImageLogger('log_pollen_singlechannel', chan_in = 2, chan_out = 3, onlyifbetter=True)
+
+msdnet.train.train(n, t, val, bprov, 'pollen.h5', loggers=[consolelog, filelog, imagelog, singlechannellog], val_every=len(datsv))
+
+os.makedirs('pollen_results', exist_ok = True)
+n = msdnet.network.MSDNet.from_file('pollen.h5', gpu=True)
+#n = msdnet.network.MSDNet.from_file('pollen.h5', gpu=False) #uncomment for CPU
+
+flsin = train_images
+dats = [msdnet.data.ImageFileDataPoint(f) for f in flsin]
+
+dats = msdnet.data.convert_to_slabs(dats, 2, flip=False)
+
+for i in range(flsin):
+    output = n.forward(dats[i].input)
+    tifffile.imsave('pollen_results/pollen_label_{:05d}.tiff'.format(i), np.argmax(output, 0,).astype(np.uint8))
+    tifffile.imsave('pollen_results/pollen_prob_lab2_{:05d}.tiff'.format(i), output[2])
 
