@@ -7,9 +7,11 @@ from tensorflow.keras import models, layers
 from tensorflow.keras.preprocessing import image
 import numpy as np
 import matplotlib.pyplot as plt
-from tensorflow.keras import datasets, models
+from tensorflow.keras import datasets, models, optimizers
 from tensorflow.random import set_seed
 from sklearn.model_selection import train_test_split
+import IPython
+import kerastuner as kt
 
 seed_value = 1
 os.environ['PYTHONHASHSEED']=str(seed_value)
@@ -174,32 +176,74 @@ print("Out of", total, "testing images, there are", test_1_count, "in class 1,",
 train_images = train_images / 255
 test_images = test_images / 255
 
-model = models.Sequential() 
+def model_builder(hp):
+    model = keras.Sequential()
+    model.add(layers.Flatten(input_shape = (84, 84, 3)))
 
-model.add(layers.Conv2D(16, (3, 3), activation='relu', input_shape=(84, 84, 3)))
-model.add(layers.MaxPooling2D((2, 2)))
+    hp_units = hp.Int('units', min_value = 16, max_value = 512, step = 16)
+    model.add(keras.layers.Dense(units = hp_units, activation = 'relu'))
+    model.add(keras.layers.Dense(4))
 
-model.add(layers.Conv2D(16, (3, 3), activation='relu'))
-model.add(layers.MaxPooling2D((2, 2)))
+    hp_learning_rate = hp.Choice('learning_rate', values = [1e-2, 1e-3, 1e-4])
 
-model.add(layers.Conv2D(32, (3, 3), activation='relu'))
-model.add(layers.MaxPooling2D((2, 2)))
+    model.compile(optimizer = optimizers.Adam(learning_rate = hp_learning_rate),
+            loss = keras.losses.SparseCategoricalCrossentropy(from_logits = True),
+            metrics = ['accuracy'])
 
-model.add(layers.Conv2D(32, (3, 3), activation='relu'))
-model.add(layers.MaxPooling2D((2, 2)))
+    return model
 
-model.add(layers.Flatten()) 
 
-model.add(layers.Dense(168, activation='relu'))
-model.add(layers.Dense(4)) # final Dense layer has 4 neurons representing the 4 classes
+tuner= kt.Hyperband(model_builder,
+        objective = 'val_accuracy',
+        max_epochs = 10,
+        factor = 3,
+        directory = 'my_dir',
+        project_name = 'intro_to_kt',
+        overwrite = True)
 
-print(model.summary())
+class ClearTrainingOutput(tf.keras.callbacks.Callback):
+    def on_train_end(*args, **kwargs):
+        IPython.display.clear_output(wait = True)
 
-model.compile(optimizer='Adam',
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-              metrics=['accuracy'])
+tuner.search(train_images,train_labels, epochs = 10, validation_data = (test_images, test_labels), callbacks = [ClearTrainingOutput()])
 
-history = model.fit(train_images, train_labels, epochs=3, batch_size=20,
-                    validation_data=(test_images, test_labels))
+# Get the optimal hyperparameters
+best_hps = tuner.get_best_hyperparameters(num_trials = 1)[0]
 
-test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
+print(f"""
+The hyperparameter search is complete. The optimal number of units in the first densely-connected
+layer is {best_hps.get('units')} and the optimal learning rate for the optimizer
+is {best_hps.get('learning_rate')}.
+""")        
+
+model = tuner.hypermodel.build(best_hps)
+model.fit(train_images, train_labels, epochs = 10, validation_data = (test_images, test_labels))
+#model = models.Sequential() 
+
+#model.add(layers.Conv2D(16, (3, 3), activation='relu', input_shape=(84, 84, 3)))
+#model.add(layers.MaxPooling2D((2, 2)))
+
+#model.add(layers.Conv2D(16, (3, 3), activation='relu'))
+#model.add(layers.MaxPooling2D((2, 2)))
+
+#model.add(layers.Conv2D(32, (3, 3), activation='relu'))
+#model.add(layers.MaxPooling2D((2, 2)))
+
+#model.add(layers.Conv2D(32, (3, 3), activation='relu'))
+#model.add(layers.MaxPooling2D((2, 2)))
+
+#model.add(layers.Flatten()) 
+
+#model.add(layers.Dense(168, activation='relu'))
+#model.add(layers.Dense(4)) # final Dense layer has 4 neurons representing the 4 classes
+
+#print(model.summary())
+
+#model.compile(optimizer='Adam',
+#              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+#              metrics=['accuracy'])
+
+#history = model.fit(train_images, train_labels, epochs=3, #batch_size=32,
+#                    validation_data=(test_images, test_labels))
+
+#test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
