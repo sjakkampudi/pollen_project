@@ -176,6 +176,8 @@ print("Out of", total, "testing images, there are", test_1_count, "in class 1,",
 train_images = train_images / 255
 test_images = test_images / 255
 
+""" # comment this out if you want to use the keras tuner
+
 def model_builder(hp):
     model = keras.Sequential()
     model.add(layers.Flatten(input_shape = (84, 84, 3)))
@@ -210,40 +212,41 @@ tuner.search(train_images,train_labels, epochs = 10, validation_data = (test_ima
 # Get the optimal hyperparameters
 best_hps = tuner.get_best_hyperparameters(num_trials = 1)[0]
 
-print(f"""
-The hyperparameter search is complete. The optimal number of units in the first densely-connected
-layer is {best_hps.get('units')} and the optimal learning rate for the optimizer
-is {best_hps.get('learning_rate')}.
-""")        
+print("The hyperparameter search is complete. The optimal number of units in the first densely-connected layer is {best_hps.get('units')} and the optimal learning rate for the optimizer is {best_hps.get('learning_rate')}.")        
 
 model = tuner.hypermodel.build(best_hps)
 model.fit(train_images, train_labels, epochs = 10, validation_data = (test_images, test_labels))
-#model = models.Sequential() 
 
-#model.add(layers.Conv2D(16, (3, 3), activation='relu', input_shape=(84, 84, 3)))
-#model.add(layers.MaxPooling2D((2, 2)))
+"""
 
-#model.add(layers.Conv2D(16, (3, 3), activation='relu'))
-#model.add(layers.MaxPooling2D((2, 2)))
+model = models.Sequential() 
 
-#model.add(layers.Conv2D(32, (3, 3), activation='relu'))
-#model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(16, (3, 3), activation='relu', input_shape=(84, 84, 3)))
+model.add(layers.MaxPooling2D((2, 2)))
 
-#model.add(layers.Conv2D(32, (3, 3), activation='relu'))
-#model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(16, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
 
-#model.add(layers.Flatten()) 
+model.add(layers.Conv2D(32, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
 
-#model.add(layers.Dense(168, activation='relu'))
-#model.add(layers.Dense(4)) # final Dense layer has 4 neurons representing the 4 classes
+model.add(layers.Conv2D(32, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
 
-#print(model.summary())
+model.add(layers.Flatten()) 
 
-#model.compile(optimizer='Adam',
-#              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-#              metrics=['accuracy'])
+model.add(layers.Dense(168, activation='relu'))
+model.add(layers.Dense(4)) # final Dense layer has 4 neurons representing the 4 classes
 
-#history = model.fit(train_images, train_labels, epochs=3, #batch_size=32,
-#                    validation_data=(test_images, test_labels))
+print(model.summary())
 
-#test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
+model.compile(optimizer='Adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+
+history = model.fit(train_images, train_labels, epochs=3, #batch_size=32,
+                    validation_data=(test_images, test_labels))
+
+test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
+
+# """ # comment this quotes set out if you want to use the keras manually added layers
