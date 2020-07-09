@@ -131,13 +131,15 @@ train_labels = np.asarray(train_labels)
 
 print("New training image count:", train_images.shape[0])
 
-train_images, test_images, train_labels, test_labels = train_test_split(train_images,
+secret_images, test_images, secret_labels, test_labels = train_test_split(train_images,
                                                                        train_labels,
-                                                                       test_size = 0.33,
+                                                                       test_size = 0.30,
+                                                                       train_size = 0.10, # this is actually the secret category
                                                                        random_state = seed_value)
 
 print("----- TRAIN/TEST SPLIT: 66% training, 33% testing -----")
 
+print(len(train_images), len(test_images))
 
 train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
 
@@ -176,7 +178,7 @@ print("Out of", total, "testing images, there are", test_1_count, "in class 1,",
 train_images = train_images / 255
 test_images = test_images / 255
 
-""" # comment this out if you want to use the keras tuner
+''' # comment this out if you want to use the keras tuner
 
 def model_builder(hp):
     model = keras.Sequential()
@@ -217,7 +219,7 @@ print("The hyperparameter search is complete. The optimal number of units in the
 model = tuner.hypermodel.build(best_hps)
 model.fit(train_images, train_labels, epochs = 10, validation_data = (test_images, test_labels))
 
-"""
+'''
 
 model = models.Sequential() 
 
@@ -249,4 +251,18 @@ history = model.fit(train_images, train_labels, epochs=3, #batch_size=32,
 
 test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
 
-# """ # comment this quotes set out if you want to use the keras manually added layers
+prediction = model.predict(secret_images, verbose=1)
+#print(prediction)
+
+predicted_label = []
+
+class_names = [0, 1, 2, 3]
+
+for i in range(len(prediction)):
+    predicted_label.append(class_names[np.argmax(prediction[i])])
+    if secret_labels[i][0] != int(class_names[np.argmax(prediction[i])]):
+        print("The true label was", secret_labels[i][0], "and the predicted label was", int(class_names[np.argmax(prediction[i])]))
+
+# ''' # comment this quotes set out if you want to use the keras manually added layers
+
+
