@@ -134,7 +134,7 @@ print("New training image count:", train_images.shape[0])
 secret_images, test_images, secret_labels, test_labels = train_test_split(train_images,
                                                                        train_labels,
                                                                        test_size = 0.30,
-                                                                       train_size = 0.10, # this is actually the secret category
+                                                                       train_size = 0.05, # this is actually the secret category
                                                                        random_state = seed_value)
 
 print("----- TRAIN/TEST SPLIT: 66% training, 33% testing -----")
@@ -255,13 +255,31 @@ prediction = model.predict(secret_images, verbose=1)
 #print(prediction)
 
 predicted_label = []
-
-class_names = [0, 1, 2, 3]
+incorrect_labels = []
+class_names = [1, 2, 3, 4]
 
 for i in range(len(prediction)):
-    predicted_label.append(class_names[np.argmax(prediction[i])])
-    if secret_labels[i][0] != int(class_names[np.argmax(prediction[i])]):
-        print("The true label was", secret_labels[i][0], "and the predicted label was", int(class_names[np.argmax(prediction[i])]))
+#    predicted_label.append(class_names[np.argmax(prediction[i])])
+    if int(class_names[int(secret_labels[i][0])]) != int(class_names[np.argmax(prediction[i])]):
+        print("The true label was", int(class_names[int(secret_labels[i][0])]), "and the predicted label was", int(class_names[np.argmax(prediction[i])]))
+        incorrect_labels.append(int(class_names[int(secret_labels[i][0])]))
+        predicted_label.append(class_names[np.argmax(prediction[i])])
+
+print("The number of incorrect labels is:", len(incorrect_labels))
+
+incorrect_1, incorrect_2, incorrect_3, incorrect_4 = 0, 0, 0, 0
+
+for i in range(len(incorrect_labels)):
+    if incorrect_labels[i] == 1:
+        incorrect_1 += 1
+    elif incorrect_labels[i] == 2:
+        incorrect_2 += 1
+    elif incorrect_labels[i] == 3:
+        incorrect_3 += 1
+    elif incorrect_labels[i] == 4:
+        incorrect_4 += 1
+
+print("Out of", len(incorrect_labels), "incorrectly predicted labels,", incorrect_1, "were actually in class 1,", incorrect_2, "were actually in class 2,", incorrect_3, "were actually in class 3, and", incorrect_4, "were actually in class 4.")
 
 # ''' # comment this quotes set out if you want to use the keras manually added layers
 
