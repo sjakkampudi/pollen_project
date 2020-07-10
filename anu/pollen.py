@@ -44,7 +44,6 @@ total_labels = label_counts[0] + label_counts[1] + label_counts[2] + label_count
 type1, type2, type3, type4 = 0, 0, 0, 0
 
 print("----- AUMGENTING DATA -----")
-
 for i in range(total_labels):
     # Get random label that is still available
     while True:
@@ -132,7 +131,26 @@ for i in range(total_labels):
 train_images = np.asarray(train_images)
 train_labels = np.asarray(train_labels)
 
-print("New training image count:", train_images.shape[0])
+print("New image count:", train_images.shape[0])
+
+train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
+
+for i in range(len(train_labels)):
+    if train_labels[i,0] == 0:
+        train_1_count += 1
+    elif train_labels[i,0] == 1:
+        train_2_count += 1
+    elif train_labels[i,0] == 2:
+        train_3_count += 1
+    elif train_labels[i,0] == 3:
+        train_4_count += 1
+
+total = train_1_count + train_2_count + train_3_count + train_4_count
+
+print("Out of", total, "images, there are", train_1_count, "in class 1,", train_2_count, \
+      "in class 2,", train_3_count, "in class 3,", "and", train_4_count, "in class 4")
+
+
 
 secret_images, test_images, secret_labels, test_labels = train_test_split(train_images,
                                                                        train_labels,
