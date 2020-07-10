@@ -60,8 +60,8 @@ for i in range(total_labels):
         path = train_path1.pop(len(train_path1) - 1) # get the path at the end of the list
         image = Image.open(path)
         image_45 = image.rotate(45)
-        #image_90 = image.rotate(90)
-        image_90 = image.filter(ImageFilter.GaussianBlur(5))
+        image_90 = image.rotate(90)
+        #image_90 = image.filter(ImageFilter.GaussianBlur(1))
         image = np.asarray(image, dtype=np.float64)
         image_45 = np.asarray(image_45, dtype=np.float64)
         image_90 = np.asarray(image_90, dtype=np.float64)
@@ -77,7 +77,7 @@ for i in range(total_labels):
         image = Image.open(path)
         image_45 = image.rotate(45)
         #image_90 = image.rotate(90)
-        image_90 = image.filter(ImageFilter.GaussianBlur(5))
+        image_90 = image.filter(ImageFilter.GaussianBlur(1))
         image_60 = image.rotate(60)
         image_15 = image.rotate(15)
         image = np.asarray(image, dtype=np.float64)
@@ -106,7 +106,7 @@ for i in range(total_labels):
         path = train_path4.pop(len(train_path4) - 1) # get the path at the end of the list
         image = Image.open(path)
         image_45 = image.rotate(45)
-        image_90 = image.filter(ImageFilter.GaussianBlur(5))
+        image_90 = image.filter(ImageFilter.GaussianBlur(1))
         #image_90 = image.rotate(90)
         image_60 = image.rotate(60)
         image_15 = image.rotate(15)
@@ -140,9 +140,10 @@ secret_images, test_images, secret_labels, test_labels = train_test_split(train_
                                                                        train_size = 0.05, # this is actually the secret category
                                                                        random_state = seed_value)
 
-print("----- TRAIN/TEST SPLIT: 66% training, 33% testing -----")
+train_images, temp_images, train_labels, temp_labels = train_test_split(train_images,
+        train_labels, train_size = 0.65, random_state = seed_value)
 
-print(len(train_images), len(test_images))
+print("----- TRAIN/TEST SPLIT: 65% training, 30% testing, 5% secret -----")
 
 train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
 
@@ -284,10 +285,10 @@ for i in range(len(incorrect_labels)):
 
 print("Out of", len(incorrect_labels), "incorrectly predicted labels,", incorrect_1, "were actually in class 1,", incorrect_2, "were actually in class 2,", incorrect_3, "were actually in class 3, and", incorrect_4, "were actually in class 4.")
 
-print("Class 1 accuracy:", 100*(1-incorrect_1/len(incorrect_labels)), "%")
-print("Class 2 accuracy:", 100*(1-incorrect_2/len(incorrect_labels)), "%")
-print("Class 3 accuracy:", 100*(1-incorrect_3/len(incorrect_labels)), "%")
-print("Class 4 accuracy:", 100*(1-incorrect_4/len(incorrect_labels)), "%")
+print("Class 1 accuracy:", int(100*(1-incorrect_1/len(incorrect_labels))), "%")
+print("Class 2 accuracy:", int(100*(1-incorrect_2/len(incorrect_labels))), "%")
+print("Class 3 accuracy:", int(100*(1-incorrect_3/len(incorrect_labels))), "%")
+print("Class 4 accuracy:", int(100*(1-incorrect_4/len(incorrect_labels))), "%")
 
 # ''' # comment this quotes set out if you want to use the keras manually added layers
 
