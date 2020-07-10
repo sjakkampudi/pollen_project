@@ -1,6 +1,6 @@
 import os
 import random
-from PIL import Image
+from PIL import Image, ImageFilter
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import models, layers
@@ -60,7 +60,8 @@ for i in range(total_labels):
         path = train_path1.pop(len(train_path1) - 1) # get the path at the end of the list
         image = Image.open(path)
         image_45 = image.rotate(45)
-        image_90 = image.rotate(90)
+        #image_90 = image.rotate(90)
+        image_90 = image.filter(ImageFilter.GaussianBlur(5))
         image = np.asarray(image, dtype=np.float64)
         image_45 = np.asarray(image_45, dtype=np.float64)
         image_90 = np.asarray(image_90, dtype=np.float64)
@@ -75,7 +76,8 @@ for i in range(total_labels):
         path = train_path2.pop(len(train_path2) - 1) # get the path at the end of the list
         image = Image.open(path)
         image_45 = image.rotate(45)
-        image_90 = image.rotate(90)
+        #image_90 = image.rotate(90)
+        image_90 = image.filter(ImageFilter.GaussianBlur(5))
         image_60 = image.rotate(60)
         image_15 = image.rotate(15)
         image = np.asarray(image, dtype=np.float64)
@@ -104,7 +106,8 @@ for i in range(total_labels):
         path = train_path4.pop(len(train_path4) - 1) # get the path at the end of the list
         image = Image.open(path)
         image_45 = image.rotate(45)
-        image_90 = image.rotate(90)
+        image_90 = image.filter(ImageFilter.GaussianBlur(5))
+        #image_90 = image.rotate(90)
         image_60 = image.rotate(60)
         image_15 = image.rotate(15)
         image = np.asarray(image, dtype=np.float64)
@@ -280,6 +283,11 @@ for i in range(len(incorrect_labels)):
         incorrect_4 += 1
 
 print("Out of", len(incorrect_labels), "incorrectly predicted labels,", incorrect_1, "were actually in class 1,", incorrect_2, "were actually in class 2,", incorrect_3, "were actually in class 3, and", incorrect_4, "were actually in class 4.")
+
+print("Class 1 accuracy:", 100*(1-incorrect_1/len(incorrect_labels)), "%")
+print("Class 2 accuracy:", 100*(1-incorrect_2/len(incorrect_labels)), "%")
+print("Class 3 accuracy:", 100*(1-incorrect_3/len(incorrect_labels)), "%")
+print("Class 4 accuracy:", 100*(1-incorrect_4/len(incorrect_labels)), "%")
 
 # ''' # comment this quotes set out if you want to use the keras manually added layers
 
