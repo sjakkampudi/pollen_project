@@ -23,10 +23,10 @@ set_seed(seed_value)
 
 print("tensorflow version is:", tf.__version__)
 
-train_path1 = open('../matthew/Pollen_Classifier/train/images/1/train_OBJ/paths.txt').read().splitlines()
-train_path2 = open('../matthew/Pollen_Classifier/train/images/2/train_OBJ/paths.txt').read().splitlines()
-train_path3 = open('../matthew/Pollen_Classifier/train/images/3/train_OBJ/paths.txt').read().splitlines()
-train_path4 = open('../matthew/Pollen_Classifier/train/images/4/train_OBJ/paths.txt').read().splitlines()
+train_path1 = open('train/images/1/train_OBJ/paths.txt').read().splitlines()
+train_path2 = open('train/images/2/train_OBJ/paths.txt').read().splitlines()
+train_path3 = open('train/images/3/train_OBJ/paths.txt').read().splitlines()
+train_path4 = open('train/images/4/train_OBJ/paths.txt').read().splitlines()
 
 print("Total class 1 images:", len(train_path1))
 print("Total class 2 images:", len(train_path2))
@@ -59,8 +59,8 @@ for i in range(total_labels):
         path = train_path1.pop(len(train_path1) - 1) # get the path at the end of the list
         image = Image.open(path)
         image_45 = image.rotate(45)
-        image_90 = image.rotate(90)
-        #image_90 = image.filter(ImageFilter.GaussianBlur(1))
+        #image_90 = image.rotate(90)
+        image_90 = image.filter(ImageFilter.GaussianBlur(1))
         image = np.asarray(image, dtype=np.float64)
         image_45 = np.asarray(image_45, dtype=np.float64)
         image_90 = np.asarray(image_90, dtype=np.float64)
@@ -75,8 +75,8 @@ for i in range(total_labels):
         path = train_path2.pop(len(train_path2) - 1) # get the path at the end of the list
         image = Image.open(path)
         image_45 = image.rotate(45)
-        #image_90 = image.rotate(90)
-        image_90 = image.filter(ImageFilter.GaussianBlur(1))
+        image_90 = image.rotate(90)
+        #image_90 = image.filter(ImageFilter.GaussianBlur(1))
         image_60 = image.rotate(60)
         image_15 = image.rotate(15)
         image = np.asarray(image, dtype=np.float64)
@@ -105,8 +105,8 @@ for i in range(total_labels):
         path = train_path4.pop(len(train_path4) - 1) # get the path at the end of the list
         image = Image.open(path)
         image_45 = image.rotate(45)
-        image_90 = image.filter(ImageFilter.GaussianBlur(1))
-        #image_90 = image.rotate(90)
+        #image_90 = image.filter(ImageFilter.GaussianBlur(1))
+        image_90 = image.rotate(90)
         image_60 = image.rotate(60)
         image_15 = image.rotate(15)
         image = np.asarray(image, dtype=np.float64)
@@ -283,7 +283,7 @@ class_names = [1, 2, 3, 4]
 for i in range(len(prediction)):
 #    predicted_label.append(class_names[np.argmax(prediction[i])])
     if int(class_names[int(secret_labels[i][0])]) != int(class_names[np.argmax(prediction[i])]):
-        print("The true label was", int(class_names[int(secret_labels[i][0])]), "and the predicted label was", int(class_names[np.argmax(prediction[i])]))
+       # print("The true label was", int(class_names[int(secret_labels[i][0])]), "and the predicted label was", int(class_names[np.argmax(prediction[i])]))
         incorrect_labels.append(int(class_names[int(secret_labels[i][0])]))
         predicted_label.append(class_names[np.argmax(prediction[i])])
 
