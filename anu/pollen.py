@@ -136,9 +136,9 @@ train_images_new = np.ones((train_images.shape[0], train_images.shape[1], train_
 
 for i in range(len(train_images)):
     image = train_images[i]
-    print(image.shape,  train_images.shape)
+    #print(image.shape,  train_images.shape)
     image = image.reshape(image.shape[0],image.shape[1],1) # <-- this makes it a rank-3 image
-    print(image.shape)
+    #print(image.shape)
     train_images_new[i] = image
 
 print(train_images_new.shape)
