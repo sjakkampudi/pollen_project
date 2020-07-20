@@ -23,10 +23,10 @@ set_seed(seed_value)
 
 print("tensorflow version is:", tf.__version__)
 
-train_path1 = open('train/images/1/train_OBJ/paths.txt').read().splitlines()
-train_path2 = open('train/images/2/train_OBJ/paths.txt').read().splitlines()
-train_path3 = open('train/images/3/train_OBJ/paths.txt').read().splitlines()
-train_path4 = open('train/images/4/train_OBJ/paths.txt').read().splitlines()
+train_path1 = open('/home/agtrivedi/repos/pollen_project/segged_data/segmented_pollen/1/paths.txt').read().splitlines()
+train_path2 = open('/home/agtrivedi/repos/pollen_project/segged_data/segmented_pollen/2/paths.txt').read().splitlines()
+train_path3 = open('/home/agtrivedi/repos/pollen_project/segged_data/segmented_pollen/3/paths.txt').read().splitlines()
+train_path4 = open('/home/agtrivedi/repos/pollen_project/segged_data/segmented_pollen/4/paths.txt').read().splitlines()
 
 print("Total class 1 images:", len(train_path1))
 print("Total class 2 images:", len(train_path2))
@@ -131,6 +131,19 @@ for i in range(total_labels):
 train_images = np.asarray(train_images)
 train_labels = np.asarray(train_labels)
 
+#train_images = np.reshape(train_images.shape[0], train_images.shape[1], train_images.shape[2], 1)
+train_images_new = np.ones((train_images.shape[0], train_images.shape[1], train_images.shape[2], 1))
+
+for i in range(len(train_images)):
+    image = train_images[i]
+    print(image.shape,  train_images.shape)
+    image = image.reshape(image.shape[0],image.shape[1],1) # <-- this makes it a rank-3 image
+    print(image.shape)
+    train_images_new[i] = image
+
+print(train_images_new.shape)
+train_images = train_images_new
+
 print("New image count:", train_images.shape[0])
 
 train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
@@ -200,6 +213,8 @@ print("Out of", total, "testing images, there are", test_1_count, "in class 1,",
 train_images = train_images / 255
 test_images = test_images / 255
 
+print(train_images[1,:,:].shape)
+
 ''' # comment this out if you want to use the keras tuner
 
 def model_builder(hp):
@@ -245,7 +260,7 @@ model.fit(train_images, train_labels, epochs = 10, validation_data = (test_image
 
 model = models.Sequential() 
 
-model.add(layers.Conv2D(16, (3, 3), activation='relu', input_shape=(84, 84, 3)))
+model.add(layers.Conv2D(16, (3, 3), activation='relu', input_shape=(84, 84, 1)))
 model.add(layers.MaxPooling2D((2, 2)))
 
 model.add(layers.Conv2D(16, (3, 3), activation='relu'))
