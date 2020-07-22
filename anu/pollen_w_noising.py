@@ -215,7 +215,6 @@ train_images = np.asarray(train_images)
 train_labels = np.asarray(train_labels)
 
 print("New total training images: " + str(len(train_images)))
-print("trains_images.shape: " + str(train_images.shape))
 
 secret_images, test_images, secret_labels, test_labels = train_test_split(train_images,
                                                                        train_labels,
@@ -330,7 +329,7 @@ model.compile(optimizer='Adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=3, #batch_size=32,
+history = model.fit(train_images, train_labels, epochs=NUM_EPOCHS, #batch_size=32,
                     validation_data=(test_images, test_labels))
 
 test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
