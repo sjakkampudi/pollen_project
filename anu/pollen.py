@@ -23,10 +23,10 @@ set_seed(seed_value)
 
 print("tensorflow version is:", tf.__version__)
 
-train_path1 = open('/home/agtrivedi/repos/pollen_project/segged_data/segmented_pollen/1/paths.txt').read().splitlines()
-train_path2 = open('/home/agtrivedi/repos/pollen_project/segged_data/segmented_pollen/2/paths.txt').read().splitlines()
-train_path3 = open('/home/agtrivedi/repos/pollen_project/segged_data/segmented_pollen/3/paths.txt').read().splitlines()
-train_path4 = open('/home/agtrivedi/repos/pollen_project/segged_data/segmented_pollen/4/paths.txt').read().splitlines()
+train_path1 = open('/home/agtrivedi/repos/pollen_project/anu/train/images/1/train_OBJ/paths.txt').read().splitlines()
+train_path2 = open('/home/agtrivedi/repos/pollen_project/anu/train/images/2/train_OBJ/paths.txt').read().splitlines()
+train_path3 = open('/home/agtrivedi/repos/pollen_project/anu/train/images/3/train_OBJ/paths.txt').read().splitlines()
+train_path4 = open('/home/agtrivedi/repos/pollen_project/anu/train/images/4/train_OBJ/paths.txt').read().splitlines()
 
 print("Total class 1 images:", len(train_path1))
 print("Total class 2 images:", len(train_path2))
@@ -42,7 +42,7 @@ label_counts = [len(train_path1), len(train_path2), len(train_path3), len(train_
 total_labels = label_counts[0] + label_counts[1] + label_counts[2] + label_counts[3]
 
 type1, type2, type3, type4 = 0, 0, 0, 0
-
+counter1, counter2, counter3, counter4 = 0, 0, 0, 0
 print("----- AUMGENTING DATA -----")
 for i in range(total_labels):
     # Get random label that is still available
@@ -59,8 +59,25 @@ for i in range(total_labels):
         path = train_path1.pop(len(train_path1) - 1) # get the path at the end of the list
         image = Image.open(path)
         image_45 = image.rotate(45)
-        #image_90 = image.rotate(90)
-        image_90 = image.filter(ImageFilter.GaussianBlur(1))
+        image_90 = image.rotate(90)
+        image_blur = image.filter(ImageFilter.GaussianBlur(1))
+        image_60 = image.rotate(60)
+        image_60 = np.asarray(image_60, dtype=np.float64)
+        image_blur = np.asarray(image_blur, dtype=np.float64)
+        train_images.append(image_blur)
+        train_images.append(image_60)
+        label = [0]
+        train_labels.append(label)
+        train_labels.append(label)
+        type1 += 2
+        if counter1 % 2 == 0: 
+            image_80 = image.rotate(80)
+            image_80 = np.asarray(image_80, dtype=np.float64)
+            train_images.append(image_80)
+            label = [0]
+            train_labels.append(label)
+            type1 += 1
+
         image = np.asarray(image, dtype=np.float64)
         image_45 = np.asarray(image_45, dtype=np.float64)
         image_90 = np.asarray(image_90, dtype=np.float64)
@@ -71,66 +88,134 @@ for i in range(total_labels):
         train_labels.append(label)
         train_labels.append(label)
         type1 += 3
+        counter1 += 1
     elif random_label == 2:
         path = train_path2.pop(len(train_path2) - 1) # get the path at the end of the list
         image = Image.open(path)
         image_45 = image.rotate(45)
+        image_blur = image.filter(ImageFilter.GaussianBlur(1))
+        image_blur2 = image.filter(ImageFilter.GaussianBlur(2))
+        image_blur3 = image.filter(ImageFilter.GaussianBlur(3))
         image_90 = image.rotate(90)
-        #image_90 = image.filter(ImageFilter.GaussianBlur(1))
         image_60 = image.rotate(60)
         image_15 = image.rotate(15)
+        image_80 = image.rotate(80)
+        image_75 = image.rotate(75)
+        image_25 = image.rotate(25)
         image = np.asarray(image, dtype=np.float64)
         image_45 = np.asarray(image_45, dtype=np.float64)
         image_90 = np.asarray(image_90, dtype=np.float64)
         image_60 = np.asarray(image_60, dtype=np.float64)
         image_15 = np.asarray(image_15, dtype=np.float64)
+        image_80 = np.asarray(image_90, dtype=np.float64)
+        image_75 = np.asarray(image_60, dtype=np.float64)
+        image_25 = np.asarray(image_15, dtype=np.float64)
+        image_blur = np.asarray(image_blur, dtype=np.float64)
+        image_blur2 = np.asarray(image_blur2, dtype=np.float64)
+        image_blur3 = np.asarray(image_blur3, dtype=np.float64)
         train_images.append(image)
         train_images.append(image_45)
         train_images.append(image_90)
         train_images.append(image_60)
         train_images.append(image_15)
+        train_images.append(image_80)
+        train_images.append(image_75)
+        train_images.append(image_25)
+        train_images.append(image_blur)
+        train_images.append(image_blur2)
+        train_images.append(image_blur3)
         label = [1]
         train_labels.append(label)
         train_labels.append(label)
         train_labels.append(label)
         train_labels.append(label)
-        type2 += 5
+        train_labels.append(label)
+        train_labels.append(label)
+        train_labels.append(label)
+        train_labels.append(label)
+        train_labels.append(label)
+        train_labels.append(label)
+        type2 += 11
+        counter2 += 1
+
     elif random_label == 3:
         path = train_path3.pop(len(train_path3) - 1) # get the path at the end of the list
         image = Image.open(path)
+        
+        if counter3 < int(label_counts[2]*.1):
+            image_80 = image.rotate(80)
+            image_80 = np.asarray(image_80, dtype=np.float64)
+            train_images.append(image_80)
+            label = [0]
+            train_labels.append(label)
+            type3 += 1
+            counter3 += 1
+
         image = np.asarray(image, dtype=np.float64)
         train_images.append(image)
+        
         type3 += 1
+        counter3 += 1
     elif random_label == 4:
         path = train_path4.pop(len(train_path4) - 1) # get the path at the end of the list
         image = Image.open(path)
         image_45 = image.rotate(45)
-        #image_90 = image.filter(ImageFilter.GaussianBlur(1))
+        image_blur = image.filter(ImageFilter.GaussianBlur(1))
+        image_blur2 = image.filter(ImageFilter.GaussianBlur(2))
+        image_blur3 = image.filter(ImageFilter.GaussianBlur(3))
+        image_blur4 = image.filter(ImageFilter.GaussianBlur(4))
         image_90 = image.rotate(90)
         image_60 = image.rotate(60)
         image_15 = image.rotate(15)
+        image_80 = image.rotate(80)
+        image_75 = image.rotate(75)
+        image_25 = image.rotate(25)
         image = np.asarray(image, dtype=np.float64)
         image_45 = np.asarray(image_45, dtype=np.float64)
         image_90 = np.asarray(image_90, dtype=np.float64)
         image_60 = np.asarray(image_60, dtype=np.float64)
         image_15 = np.asarray(image_15, dtype=np.float64)
+        image_80 = np.asarray(image_90, dtype=np.float64)
+        image_75 = np.asarray(image_60, dtype=np.float64)
+        image_25 = np.asarray(image_15, dtype=np.float64)
+        image_blur = np.asarray(image_blur, dtype=np.float64)
+        image_blur2 = np.asarray(image_blur2, dtype=np.float64)
+        image_blur3 = np.asarray(image_blur3, dtype=np.float64)
+        image_blur4 = np.asarray(image_blur4, dtype=np.float64)
         train_images.append(image)
         train_images.append(image_45)
         train_images.append(image_90)
         train_images.append(image_60)
         train_images.append(image_15)
+        train_images.append(image_80)
+        train_images.append(image_75)
+        train_images.append(image_25)
+        train_images.append(image_blur)
+        train_images.append(image_blur2)
+        train_images.append(image_blur3)
+        train_images.append(image_blur4)
         label = [3]
         train_labels.append(label)
         train_labels.append(label)
         train_labels.append(label)
         train_labels.append(label)
-        type4 += 5
+        train_labels.append(label)
+        train_labels.append(label)
+        train_labels.append(label)
+        train_labels.append(label)
+        train_labels.append(label)
+        train_labels.append(label)
+        train_labels.append(label)
+        type4 += 12
+        counter4 += 1
     else:
         print("Issue...")
 
+print("HELOOOO", type3)
+
 train_images = np.asarray(train_images)
 train_labels = np.asarray(train_labels)
-
+'''
 #train_images = np.reshape(train_images.shape[0], train_images.shape[1], train_images.shape[2], 1)
 train_images_new = np.ones((train_images.shape[0], train_images.shape[1], train_images.shape[2], 1))
 
@@ -143,25 +228,13 @@ for i in range(len(train_images)):
 
 print(train_images_new.shape)
 train_images = train_images_new
-
+'''
 print("New image count:", train_images.shape[0])
 
-train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
+total = type1 + type2 + type3 + type4
 
-for i in range(len(train_labels)):
-    if train_labels[i,0] == 0:
-        train_1_count += 1
-    elif train_labels[i,0] == 1:
-        train_2_count += 1
-    elif train_labels[i,0] == 2:
-        train_3_count += 1
-    elif train_labels[i,0] == 3:
-        train_4_count += 1
-
-total = train_1_count + train_2_count + train_3_count + train_4_count
-
-print("Out of", total, "images, there are", train_1_count, "in class 1,", train_2_count, \
-      "in class 2,", train_3_count, "in class 3,", "and", train_4_count, "in class 4")
+print("Out of", total, "images, there are", type1, "in class 1,", type2, \
+      "in class 2,", type3, "in class 3,", "and", type4, "in class 4")
 
 
 
@@ -260,7 +333,7 @@ model.fit(train_images, train_labels, epochs = 10, validation_data = (test_image
 
 model = models.Sequential() 
 
-model.add(layers.Conv2D(16, (3, 3), activation='relu', input_shape=(84, 84, 1)))
+model.add(layers.Conv2D(16, (3, 3), activation='relu', input_shape=(84, 84, 3)))
 model.add(layers.MaxPooling2D((2, 2)))
 
 model.add(layers.Conv2D(16, (3, 3), activation='relu'))
@@ -283,7 +356,7 @@ model.compile(optimizer='Adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=3, #batch_size=32,
+history = model.fit(train_images, train_labels, epochs=20, #batch_size=32,
                     validation_data=(test_images, test_labels))
 
 test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)
