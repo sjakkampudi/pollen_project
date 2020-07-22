@@ -45,7 +45,14 @@ label_counts = [len(train_path1), len(train_path2), len(train_path3), len(train_
 
 total_labels = label_counts[0] + label_counts[1] + label_counts[2] + label_counts[3]
 
+label1 = label_counts[0]*0.55
+label2 = label_counts[1]
+label3 = label_counts[2]
+label4 = label_counts[3]*.76
+
 type1, type2, type3, type4 = 0, 0, 0, 0
+
+counter1, counter2, counter3, counter4 = 0, 0, 0, 0
 
 print("----- AUMGENTING DATA -----")
 for i in range(total_labels):
@@ -62,86 +69,82 @@ for i in range(total_labels):
     if random_label == 1:
         path = train_path1.pop(len(train_path1) - 1) # get the path at the end of the list
         image = Image.open(path)
-        image_45 = image.rotate(45)
-        #image_90 = image.rotate(90)
-        #image_90 = image.filter(ImageFilter.GaussianBlur(1))
-        
-        ### Get Noisy!
-        image_90 = np.array(image)
-        image_90 = random_noise(cv_image, mode='gaussian', var=0.025)
-        ### Done Getting Noisy~
-        
-        image = np.asarray(image, dtype=np.float64)
-        image_45 = np.asarray(image_45, dtype=np.float64)
-        image_90 = np.asarray(image_90, dtype=np.float64)
+        image = np.array(image)
+
+        if counter1 < int(label1):
+            ### Get Noisy!
+            image_noisy = random_noise(image, mode='gaussian', var=0.025)
+            image_salt = random_noise(image, mode='salt')
+            ### Done Getting Noisy~ 
+            train_images.append(image_noisy)
+            train_images.append(image_salt)
+            label = [0]
+            train_labels.append(label)
+            train_labels.append(label)
+            counter1 += 2
+            type1 += 2
+
         train_images.append(image)
-        train_images.append(image_45)
-        train_images.append(image_90)
-        label = [0]
-        train_labels.append(label)
-        train_labels.append(label)
-        type1 += 3
+        type1 += 1
+
     elif random_label == 2:
         path = train_path2.pop(len(train_path2) - 1) # get the path at the end of the list
         image = Image.open(path)
-        image_45 = image.rotate(45)
-        image_90 = image.rotate(90)
-        #image_90 = image.filter(ImageFilter.GaussianBlur(1))
-        image_60 = image.rotate(60)
-        image_15 = image.rotate(15)
-        image = np.asarray(image, dtype=np.float64)
-        image_45 = np.asarray(image_45, dtype=np.float64)
-        image_90 = np.asarray(image_90, dtype=np.float64)
-        image_60 = np.asarray(image_60, dtype=np.float64)
-        image_15 = np.asarray(image_15, dtype=np.float64)
+        image = np.array(image)
+
+        if counter2 < int(label2):
+            ### Get Noisy!
+            image_noisy = random_noise(image, mode='gaussian', var=0.025)
+            image_salt = random_noise(image, mode='salt')
+            ### Done Getting Noisy~ 
+            train_images.append(image_noisy)
+            train_images.append(image_salt)
+            label = [1]
+            train_labels.append(label)
+            train_labels.append(label)
+            type2 += 2
+            counter2 += 1 
+
         train_images.append(image)
-        train_images.append(image_45)
-        train_images.append(image_90)
-        train_images.append(image_60)
-        train_images.append(image_15)
-        label = [1]
-        train_labels.append(label)
-        train_labels.append(label)
-        train_labels.append(label)
-        train_labels.append(label)
-        type2 += 5
+        type2 += 1
+
     elif random_label == 3:
         path = train_path3.pop(len(train_path3) - 1) # get the path at the end of the list
         image = Image.open(path)
-        image = np.asarray(image, dtype=np.float64)
+        image = np.array(image)
         train_images.append(image)
         type3 += 1
+        counter3 += 1
+
     elif random_label == 4:
         path = train_path4.pop(len(train_path4) - 1) # get the path at the end of the list
         image = Image.open(path)
-        image_45 = image.rotate(45)
-        #image_90 = image.filter(ImageFilter.GaussianBlur(1))
-        image_90 = image.rotate(90)
-        image_60 = image.rotate(60)
-        image_15 = image.rotate(15)
-        image = np.asarray(image, dtype=np.float64)
-        image_45 = np.asarray(image_45, dtype=np.float64)
-        image_90 = np.asarray(image_90, dtype=np.float64)
-        image_60 = np.asarray(image_60, dtype=np.float64)
-        image_15 = np.asarray(image_15, dtype=np.float64)
+        image = np.array(image)
+        if counter4 < int(label4):
+            ### Get Noisy!
+            image_noisy = random_noise(image, mode='gaussian', var=0.025)
+            image_salt = random_noise(image, mode='salt')
+            image_pepper = random_noise(image, mode='pepper')
+            ### Done Getting Noisy~ 
+            train_images.append(image_noisy)
+            train_images.append(image_salt)
+            train_images.append(image_pepper)
+            label = [3]
+            train_labels.append(label)
+            train_labels.append(label)
+            train_labels.append(label)
+            type4 += 3
+            counter4 += 1
+
         train_images.append(image)
-        train_images.append(image_45)
-        train_images.append(image_90)
-        train_images.append(image_60)
-        train_images.append(image_15)
-        label = [3]
-        train_labels.append(label)
-        train_labels.append(label)
-        train_labels.append(label)
-        train_labels.append(label)
-        type4 += 5
+        type4 += 1
+
     else:
         print("Issue...")
 
 train_images = np.asarray(train_images)
 train_labels = np.asarray(train_labels)
 
-#train_images = np.reshape(train_images.shape[0], train_images.shape[1], train_images.shape[2], 1)
 train_images_new = np.ones((train_images.shape[0], train_images.shape[1], train_images.shape[2], 1))
 
 for i in range(len(train_images)):
@@ -151,27 +154,15 @@ for i in range(len(train_images)):
     #print(image.shape)
     train_images_new[i] = image
 
-print(train_images_new.shape)
+#print(train_images_new.shape)
 train_images = train_images_new
 
 print("New image count:", train_images.shape[0])
 
-train_1_count, train_2_count, train_3_count, train_4_count = 0, 0, 0, 0
+total = type1 + type2 + type3 + type4
 
-for i in range(len(train_labels)):
-    if train_labels[i,0] == 0:
-        train_1_count += 1
-    elif train_labels[i,0] == 1:
-        train_2_count += 1
-    elif train_labels[i,0] == 2:
-        train_3_count += 1
-    elif train_labels[i,0] == 3:
-        train_4_count += 1
-
-total = train_1_count + train_2_count + train_3_count + train_4_count
-
-print("Out of", total, "images, there are", train_1_count, "in class 1,", train_2_count, \
-      "in class 2,", train_3_count, "in class 3,", "and", train_4_count, "in class 4")
+print("Out of", total, "images, there are", type1, "in class 1,", type2, \
+      "in class 2,", type3, "in class 3,", "and", type4, "in class 4")
 
 
 
