@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 import argparse
 
 from configobj import ConfigObj
+from validate import Validator
 
 def parse_args():
     parser = argparse.ArgumentParser(description="pollen classifier")
@@ -21,7 +22,9 @@ def parse_args():
 
 args = parse_args()
 
-cfg = ConfigObj(args.config_path)
+cfgspec = ConfigObj("config/configspec.ini", list_values=False, encoding='UTF8', _inspec=True)
+cfg = ConfigObj(args.config_path, configspec=cfgspec)
+cfg.validate(Validator())
 
 os.environ['PYTHONHASHSEED']=str(cfg["seed_value"])
 
