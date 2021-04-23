@@ -7,10 +7,14 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, Flatten
 from tensorflow.keras.preprocessing import image
 import numpy as np
 from sklearn.model_selection import train_test_split
+
 import argparse
+import subprocess
 
 from configobj import ConfigObj
 from validate import Validator
+
+import keepsake
 
 def parse_args():
     parser = argparse.ArgumentParser(description="pollen classifier")
@@ -25,6 +29,10 @@ args = parse_args()
 cfgspec = ConfigObj("config/configspec.ini", list_values=False, encoding='UTF8', _inspec=True)
 cfg = ConfigObj(args.config_path, configspec=cfgspec)
 cfg.validate(Validator())
+
+subprocess.Popen(['cp', args.config_path, 'experiment_dir/config.ini']).wait()
+
+experiment = keepsake.init(path="experiment_dir/", params = cfg)
 
 os.environ['PYTHONHASHSEED']=str(cfg["seed_value"])
 
@@ -159,3 +167,8 @@ print("Class 1 accuracy:", int(c1_acc*10000)/100, "%")
 print("Class 2 accuracy:", int(c2_acc*10000)/100, "%")
 print("Class 3 accuracy:", int(c3_acc*10000)/100, "%")
 print("Class 4 accuracy:", int(c4_acc*10000)/100, "%")
+
+metrics = {"Accuracy": test_acc, "c1_acc": c1_acc, "c2_acc": c2_acc, "c3_acc": c3_acc, "c4_acc": c4_acc, "val_acc": val_acc, "val_loss": val_loss}
+
+experiment.checkpoint(path="checkpoint_dir/", metrics=metrics, step = cfg["epochs"],
+                        primary_metric=("Accuracy", "maximize"))
